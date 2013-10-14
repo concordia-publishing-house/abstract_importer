@@ -1,5 +1,2 @@
-require "abstract_importer/version"
-
-module AbstractImporter
-  # Your code goes here...
-end
+require 'abstract_importer/base'
+require 'abstract_importer/version'
