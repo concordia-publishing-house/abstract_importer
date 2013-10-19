@@ -29,12 +29,12 @@ module AbstractImporter
       @dry_run      = options.fetch(:dry_run, false)
       
       @id_map       = IdMap.new
-      @summary      = {}
+      @results      = {}
       @import_plan  = self.class.import_plan.to_h
       @collections  = []
     end
     
-    attr_reader :source, :parent, :reporter, :id_map, :summary
+    attr_reader :source, :parent, :reporter, :id_map, :results
     
     def dry_run?
       @dry_run
@@ -58,7 +58,7 @@ module AbstractImporter
       
       teardown
       reporter.finish_all(self, ms)
-      @summary
+      results
     end
     
     def setup
@@ -69,7 +69,7 @@ module AbstractImporter
     end
     
     def import_collection(collection)
-      @summary[collection.name] = CollectionImporter.new(self, collection).perform!
+      results[collection.name] = CollectionImporter.new(self, collection).perform!
     end
     
     def teardown
