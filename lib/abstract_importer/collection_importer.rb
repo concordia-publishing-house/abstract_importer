@@ -30,7 +30,7 @@ module AbstractImporter
       reporter.start_collection(self)
       prepare!
       
-      summary[5] = Benchmark.ms do
+      summary.ms = Benchmark.ms do
         each_new_record &method(:process_record)
       end
       
@@ -95,24 +95,24 @@ module AbstractImporter
     end
     
     def process_record(hash)
-      summary[0] += 1
+      summary.total += 1
       
       if already_imported?(hash)
-        summary[3] += 1
+        summary.already_imported += 1
         return
       end
       
       remap_foreign_keys!(hash)
       
       if redundant_record?(hash)
-        summary[1] += 1
+        summary.redundant += 1
         return
       end
       
       if create_record(hash)
-        summary[2] += 1
+        summary.created += 1
       else
-        summary[4] += 1
+        summary.invalid += 1
       end
     end
     

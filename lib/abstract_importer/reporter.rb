@@ -43,19 +43,9 @@ module AbstractImporter
     end
     
     def finish_collection(collection, summary)
-      ms = summary[5]
-      elapsed = distance_of_time(ms)
-      stat "\n  #{summary[0]} #{collection.name} were found"
-      if summary[0] > 0
-        stat     "#{summary[3]} #{collection.name} were imported previously"
-        stat     "#{summary[1]} #{collection.name} would create duplicates and will not be imported"
-        stat     "#{summary[4]} #{collection.name} were invalid"
-        stat     "#{summary[2]} #{collection.name} were imported"
-      end
-      stat     "#{elapsed} elapsed" << (summary[0] > 0 ? " (#{(ms / summary[0]).to_i}ms each)" : "")
-      
-      print_messages(@notices, "Notices")
-      print_messages(@errors,  "Errors")
+      print_summary summary, collection.name
+      print_messages @notices, "Notices"
+      print_messages @errors,  "Errors"
     end
     
     
@@ -112,6 +102,19 @@ module AbstractImporter
         errors.each do |error_message, hash|
           status "\n  #{error_message}:\n    #{hash.inspect}"
         end
+      end
+    end
+    
+    def print_summary(summary, plural)
+      stat "\n  #{summary.total} #{plural} were found"
+      if summary.total > 0
+        stat "#{summary.already_imported} #{plural} were imported previously"
+        stat "#{summary.redundant} #{plural} would create duplicates and will not be imported"
+        stat "#{summary.invalid} #{plural} were invalid"
+        stat "#{summary.created} #{plural} were imported"
+        stat "#{distance_of_time(summary.ms)} elapsed (#{(summary.ms / summary.total).to_i}ms each)"
+      else
+        stat "#{distance_of_time(summary.ms)} elapsed"
       end
     end
     
