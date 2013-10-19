@@ -4,6 +4,7 @@ require 'abstract_importer/reporter'
 require 'abstract_importer/collection'
 require 'abstract_importer/collection_importer'
 require 'abstract_importer/id_map'
+require 'abstract_importer/summary'
 
 
 module AbstractImporter

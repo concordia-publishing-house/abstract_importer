@@ -42,8 +42,7 @@ module AbstractImporter
     
     
     def prepare!
-      #          [total, existing_records, new_records, already_imported, invalid, milliseconds]
-      @summary = [    0,                0,           0,                0,       0,            0]
+      @summary = Summary.new
       @mappings = prepare_mappings!
     end
     
