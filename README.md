@@ -1,5 +1,9 @@
 # AbstractImporter
 
+[![Build Status](https://travis-ci.org/concordia-publishing-house/abstract_importer.png?branch=master)](https://travis-ci.org/concordia-publishing-house/abstract_importer)
+
+[![Code Climate](https://codeclimate.com/github/concordia-publishing-house/abstract_importer.png)](https://codeclimate.com/github/concordia-publishing-house/abstract_importer)
+
 AbstractImporter provides services for importing complex data from an arbitrary data source. It:
 
  * Preserves relationships between tables that are imported as a set
