@@ -19,6 +19,10 @@ module AbstractImporter
     end
     alias :[] :get
     
+    def contains?(table_name, id)
+      @id_map[table_name.to_sym].key?(id)
+    end
+    
     def <<(record)
       register(record: record)
     end

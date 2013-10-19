@@ -44,28 +44,7 @@ module AbstractImporter
     def prepare!
       #          [total, existing_records, new_records, already_imported, invalid, milliseconds]
       @summary = [    0,                0,           0,                0,       0,            0]
-      @already_imported = load_already_imported_records!
       @mappings = prepare_mappings!
-    end
-    
-    def load_already_imported_records!
-      # We keep a _separate_ list of legacy IDs that
-      # have already been imported. It would optimal to
-      # check @id_map to see if a record has been imported;
-      # but because of a bug with tags, that won't work:
-      #
-      # Tags import from three table: Activity, Skill,
-      # and Training. Those tables yield tags whose
-      # legacy_ids collide. As a result several tags
-      # can share the same ID; and tags that would collide
-      # are [erroneously] not imported.
-      #
-      # Fixing this problem would involve changing the
-      # legacy_id identifier for each tag which would
-      # break the connection between already-imported tags
-      # and new imports.
-      #
-      id_map[table_name]
     end
     
     def prepare_mappings!
@@ -143,7 +122,7 @@ module AbstractImporter
     
     
     def already_imported?(hash)
-      @already_imported.key? hash[:id]
+      id_map.contains? table_name, hash[:id]
     end
     
     def remap_foreign_keys!(hash)
