@@ -18,6 +18,20 @@ class CallbackTest < ActiveSupport::TestCase
       import!
       assert_equal ["Harry", "Ron", "Hermione"], account.students.pluck(:name)
     end
+    
+    should "allow you to skip certain records" do
+      plan do |import|
+        import.students do |options|
+          options.before_build do |attrs|
+            raise AbstractImporter::Skip if attrs[:name] == "Harry Potter"
+          end
+        end
+      end
+      
+      import!
+      assert_equal ["Ron Weasley", "Hermione Granger"], account.students.pluck(:name)
+      assert_equal 1, results[:students].skipped
+    end
   end
   
   

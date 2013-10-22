@@ -112,6 +112,8 @@ module AbstractImporter
       else
         summary.invalid += 1
       end
+    rescue ::AbstractImporter::Skip
+      summary.skipped += 1
     end
     
     
@@ -184,4 +186,7 @@ module AbstractImporter
     end
     
   end
+  
+  class Skip < StandardError; end
+  
 end

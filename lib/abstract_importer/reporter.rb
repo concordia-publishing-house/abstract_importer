@@ -111,6 +111,7 @@ module AbstractImporter
         stat "#{summary.already_imported} #{plural} were imported previously"
         stat "#{summary.redundant} #{plural} would create duplicates and will not be imported"
         stat "#{summary.invalid} #{plural} were invalid"
+        stat "#{summary.skipped} #{plural} were skipped"
         stat "#{summary.created} #{plural} were imported"
         stat "#{distance_of_time(summary.ms)} elapsed (#{(summary.ms / summary.total).to_i}ms each)"
       else
