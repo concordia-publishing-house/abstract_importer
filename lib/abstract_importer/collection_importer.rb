@@ -87,10 +87,8 @@ module AbstractImporter
     
     
     def each_new_record
-      source.public_send(name) do |hash_or_hashes|
-        Array.wrap(hash_or_hashes).each do |hash|
-          yield hash.dup
-        end
+      source.public_send(name).each do |attrs|
+        yield attrs.dup
       end
     end
     

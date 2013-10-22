@@ -53,7 +53,7 @@ end
 `MyImporter`'s initializer takes two arguments: `parent` and `data_source`:
 
  * `parent` is any object that will respond to the names of your collections with an `ActiveRecord::Relation`.
- * `data_source` is any object that will respond to the names of your collections by yielding a hash of attributes once for every record you should import.
+ * `data_source` is any object that will respond to the names of your collections with an `Enumerator`.
 
 Here are reasonable classes for `parent` and `data_source`:
 
@@ -69,15 +69,19 @@ end
 # data source
 class Database
   def students
-    yield id: 457, name: "Ron"
-    yield id: 458, name: "Ginny"
-    yield id: 459, name: "Fred"
-    yield id: 460, name: "George"
+    Enumerator.new do |e|
+      e.yield id: 457, name: "Ron"
+      e.yield id: 458, name: "Ginny"
+      e.yield id: 459, name: "Fred"
+      e.yield id: 460, name: "George"
+    end
   end
 
   def parents
-    yield id: 88, name: "Arthur"
-    yield id: 89, name: "Molly"
+    Enumerator.new do |e|
+      e.yield id: 88, name: "Arthur"
+      e.yield id: 89, name: "Molly"
+    end
   end
 end
 ```
