@@ -54,7 +54,7 @@ module AbstractImporter
       io.print "." unless production?
     end
     
-    def record_failed(record)
+    def record_failed(record, hash)
       io.print "×" unless production?
       
       error_messages = invalid_params[record.class.name] ||= {}
