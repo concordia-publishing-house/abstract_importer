@@ -162,7 +162,7 @@ module AbstractImporter
         true
       else
         
-        reporter.record_failed(record)
+        reporter.record_failed(record, hash)
         false
       end
     end
