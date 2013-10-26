@@ -113,7 +113,7 @@ module AbstractImporter
         stat "#{summary.invalid} #{plural} were invalid"
         stat "#{summary.skipped} #{plural} were skipped"
         stat "#{summary.created} #{plural} were imported"
-        stat "#{distance_of_time(summary.ms)} elapsed (#{(summary.ms / summary.total).to_i}ms each)"
+        stat "#{distance_of_time(summary.ms)} elapsed (#{summary.average_ms.to_i}ms each)"
       else
         stat "#{distance_of_time(summary.ms)} elapsed"
       end
