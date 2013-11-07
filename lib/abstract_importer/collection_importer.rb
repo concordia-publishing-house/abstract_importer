@@ -30,11 +30,12 @@ module AbstractImporter
       reporter.start_collection(self)
       prepare!
       
+      invoke_callback(:before_all)
       summary.ms = Benchmark.ms do
         each_new_record &method(:process_record)
       end
+      invoke_callback(:after_all)
       
-      invoke_callback(:on_complete)
       reporter.finish_collection(self, summary)
       summary
     end

@@ -121,7 +121,7 @@ class MyImporter < AbstractImporter::Base
     import.students do |options|
       options.finder :find_student
       options.before_build { |attrs| attrs.merge(name: attrs[:name].capitalize) }
-      options.on_complete :students_completed
+      options.after_all :students_completed
     end
     import.parents
   end
@@ -159,9 +159,13 @@ The complete list of callbacks is below.
 
 `after_create` is called with the original hash of attributes and the newly-saved record right after it is successfully saved.
 
-##### on_complete
+##### before_all
 
-`on_complete` is called when all of the records in a collection have been processed.
+`before_all` is called just before the records in a collection are been processed.
+
+##### after_all
+
+`after_all` is called when all of the records in a collection have been processed.
 
 
 

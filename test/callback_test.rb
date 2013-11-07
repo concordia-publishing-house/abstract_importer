@@ -89,11 +89,28 @@ class CallbackTest < ActiveSupport::TestCase
   
   
   
-  context "on_complete" do
+  context "before_all" do
     setup do
       plan do |import|
         import.students do |options|
-          options.on_complete :callback
+          options.before_all :callback
+        end
+      end
+    end
+    
+    should "should be invoked before the collection has been imported" do
+      mock(importer).callback.once
+      import!
+    end
+  end
+  
+  
+  
+  context "after_all" do
+    setup do
+      plan do |import|
+        import.students do |options|
+          options.after_all :callback
         end
       end
     end

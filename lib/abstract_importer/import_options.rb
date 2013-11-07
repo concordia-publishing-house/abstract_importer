@@ -5,7 +5,8 @@ module AbstractImporter
                 :before_build_callback,
                 :before_create_callback,
                 :after_create_callback,
-                :on_complete_callback
+                :before_all_callback,
+                :after_all_callback
                 
     def finder(sym=nil, &block)
       @finder_callback = sym || block
@@ -27,8 +28,12 @@ module AbstractImporter
       @rescue_callback = sym || block
     end
     
-    def on_complete(sym=nil, &block)
-      @on_complete_callback = sym || block
+    def before_all(sym=nil, &block)
+      @before_all_callback = sym || block
+    end
+    
+    def after_all(sym=nil, &block)
+      @after_all_callback = sym || block
     end
     
   end
