@@ -50,7 +50,7 @@ class ActiveSupport::TestCase
   
 protected
   
-  attr_reader :account, :results
+  attr_reader :account, :results, :data_source
   
   def plan(&block)
     @klass.import(&block)

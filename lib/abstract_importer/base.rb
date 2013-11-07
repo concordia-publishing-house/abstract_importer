@@ -31,10 +31,15 @@ module AbstractImporter
       @id_map       = IdMap.new
       @results      = {}
       @import_plan  = self.class.import_plan.to_h
+      @atomic       = options.fetch(:atomic, false)
       @collections  = []
     end
     
     attr_reader :source, :parent, :reporter, :id_map, :results
+    
+    def atomic?
+      @atomic
+    end
     
     def dry_run?
       @dry_run
@@ -53,7 +58,9 @@ module AbstractImporter
       reporter.finish_setup(ms)
       
       ms = Benchmark.ms do
-        collections.each &method(:import_collection)
+        with_transaction do
+          collections.each &method(:import_collection)
+        end
       end
       
       teardown
@@ -165,6 +172,16 @@ module AbstractImporter
     
     def record_no_id_in_map_error(legacy_id, plural, foreign_key, depends_on)
       reporter.count_notice "#{plural}.#{foreign_key} will be nil: a #{depends_on.to_s.singularize} with the legacy id #{legacy_id} was not mapped."
+    end
+    
+    
+    
+    def with_transaction(&block)
+      if atomic?
+        ActiveRecord::Base.transaction(requires_new: true, &block)
+      else
+        block.call
+      end
     end
     
   end

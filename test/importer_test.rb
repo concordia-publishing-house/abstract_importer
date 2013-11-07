@@ -50,6 +50,26 @@ class ImporterTest < ActiveSupport::TestCase
       import!
       assert_equal ["James Potter", "Lily Potter"], harry.parents.pluck(:name)
     end
+    
+    context "when {atomic: true}" do
+      should "rollback the whole import if an part fails" do
+        mock(importer).atomic? { true }
+        mock.instance_of(Parent).save { raise "hell" }
+        import! rescue
+        assert_equal 0, account.parents.count, "No parents should have been imported with the exception"
+        assert_equal 0, account.students.count, "Expected students to have been rolled back"
+      end
+    end
+    
+    context "when {atomic: false}" do
+      should "not rollback the whole import if an part fails" do
+        mock(importer).atomic? { false }
+        mock.instance_of(Parent).save { raise "hell" }
+        import! rescue
+        assert_equal 0, account.parents.count, "No parents should have been imported with the exception"
+        assert_equal 3, account.students.count, "Expected students not to have been rolled back"
+      end
+    end
   end
   
   
