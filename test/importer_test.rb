@@ -45,7 +45,7 @@ class ImporterTest < ActiveSupport::TestCase
       assert_equal ["James Potter", "Lily Potter"], harry.parents.pluck(:name)
     end
     
-    should "preserve mappings event when a record was previously imported" do
+    should "preserve mappings even when a record was previously imported" do
       harry = account.students.create!(name: "Harry Potter", legacy_id: 456)
       import!
       assert_equal ["James Potter", "Lily Potter"], harry.parents.pluck(:name)
