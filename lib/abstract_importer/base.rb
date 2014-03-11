@@ -15,7 +15,11 @@ module AbstractImporter
         yield @import_plan = ImportPlan.new
       end
       
-      attr_reader :import_plan
+      def depends_on(*dependencies)
+        @dependencies = dependencies
+      end
+      
+      attr_reader :import_plan, :dependencies
     end
     
     
@@ -149,8 +153,19 @@ module AbstractImporter
       end
     end
     
+    def dependencies
+      @dependencies ||= Array(self.class.dependencies).map do |name|
+        reflection = parent.class.reflect_on_association(name)
+        model = reflection.klass
+        table_name = model.table_name
+        scope = parent.public_send(name)
+        
+        Collection.new(name, model, table_name, scope, nil)
+      end
+    end
+    
     def prepopulate_id_map!
-      collections.each do |collection|
+      (collections + dependencies).each do |collection|
         query = collection.scope.where("#{collection.table_name}.legacy_id IS NOT NULL")
         map = values_of(query, :id, :legacy_id) \
           .each_with_object({}) { |(id, legacy_id), map| map[legacy_id] = id }
