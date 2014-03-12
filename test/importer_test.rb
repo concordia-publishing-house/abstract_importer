@@ -74,6 +74,23 @@ class ImporterTest < ActiveSupport::TestCase
   
   
   
+  context "with a dependency" do
+    setup do
+      depends_on :students
+      plan do |import|
+        import.parents
+      end
+    end
+    
+    should "preserve mappings when a dependency was imported by another importer" do
+      harry = account.students.create!(name: "Harry Potter", legacy_id: 456)
+      import!
+      assert_equal ["James Potter", "Lily Potter"], harry.parents.pluck(:name)
+    end
+  end
+  
+  
+  
   context "when a finder is specified" do
     setup do
       plan do |import|

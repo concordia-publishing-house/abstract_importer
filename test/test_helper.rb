@@ -56,6 +56,10 @@ protected
     @klass.import(&block)
   end
   
+  def depends_on(*args)
+    @klass.depends_on(*args)
+  end
+  
   def import!
     @results = importer.perform!
   end
