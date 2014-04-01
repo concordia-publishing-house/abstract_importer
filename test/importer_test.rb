@@ -137,6 +137,32 @@ class ImporterTest < ActiveSupport::TestCase
       assert_equal ["Advanced Potions: Acceptable", "History of Magic: Troll"], ron.report_card
     end
   end
+
+  context "with a polymorphic data source" do
+    setup do 
+      plan do |import|
+        import.athletes
+        import.teams
+      end
+    end
+
+    should "import two Teams" do
+      import!
+      assert_equal 2, Team.all.count
+    end
+
+    should "import one FootballTeam with a Kendall Athlete" do
+      import!
+      assert_equal 1, FootballTeam.all.count
+      assert_equal "FootballTeam", account.athletes.find_by_name("Kendall").teams.first.type
+    end
+
+    should "import one RugbyTeam with a Luke Athlete" do
+      import!
+      assert_equal 1, RugbyTeam.all.count
+      assert_equal "RugbyTeam", account.athletes.find_by_name("Luke").teams.first.type
+    end
+  end
   
   
   

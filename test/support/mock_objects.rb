@@ -34,4 +34,21 @@ class Account < ActiveRecord::Base
   has_many :subjects
   has_many :grades
   has_many :locations
+  has_many :athletes
+  has_many :teams
+end
+
+class Athlete < ActiveRecord::Base
+  has_many :teams
+end
+
+class Team < ActiveRecord::Base
+  self.inheritance_column = "type"
+  belongs_to :athlete, polymorphic: true
+end
+
+class FootballTeam < Team
+end
+
+class RugbyTeam < Team
 end

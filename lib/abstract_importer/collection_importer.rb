@@ -62,9 +62,12 @@ module AbstractImporter
         # Rails can't return `association.table_name` so easily
         # because `table_name` comes from `klass` and `klass`
         # isn't predetermined.
-        next if association.options[:polymorphic]
         
-        depends_on = association.table_name.to_sym
+        if association.options[:polymorphic]
+          depends_on = association.plural_name.to_sym # hackish?
+        else
+          depends_on = association.table_name.to_sym
+        end
         foreign_key = association.foreign_key.to_sym
         
         # We support skipping some mappings entirely. I believe
