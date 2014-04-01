@@ -40,17 +40,22 @@ class MockDataSource
     end
   end
 
-  def teams
+  def football_teams
     Enumerator.new do |e|
-      e.yield id: 200, athlete_id: 300, type: "FootballTeam"
-      e.yield id: 201, athlete_id: 301, type: "RugbyTeam"
+      e.yield id: 200
+    end
+  end
+  
+  def rugby_teams
+    Enumerator.new do |e|
+      e.yield id: 200
     end
   end
 
   def athletes
     Enumerator.new do |e|
-      e.yield id: 300, name: "Kendall"
-      e.yield id: 301, name: "Luke"
+      e.yield id: 300, name: "Kendall", team_id: 200, team_type: "FootballTeam"
+      e.yield id: 301, name: "Luke", team_id: 200, team_type: "RugbyTeam"
     end
   end
   
