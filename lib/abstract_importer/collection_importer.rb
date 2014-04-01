@@ -62,9 +62,12 @@ module AbstractImporter
         # Rails can't return `association.table_name` so easily
         # because `table_name` comes from `klass` and `klass`
         # isn't predetermined.
-        next if association.options[:polymorphic]
         
-        depends_on = association.table_name.to_sym
+        if association.options[:polymorphic]
+          depends_on = association.plural_name.to_sym # hackish?
+        else
+          depends_on = association.table_name.to_sym
+        end
         foreign_key = association.foreign_key.to_sym
         
         # We support skipping some mappings entirely. I believe
@@ -155,7 +158,7 @@ module AbstractImporter
       # rescue_callback has one shot to fix things
       invoke_callback(:rescue, record) unless record.valid?
       
-      if record.save
+      if record.valid? && record.save
         invoke_callback(:after_create, hash, record)
         id_map << record
         

@@ -137,6 +137,33 @@ class ImporterTest < ActiveSupport::TestCase
       assert_equal ["Advanced Potions: Acceptable", "History of Magic: Troll"], ron.report_card
     end
   end
+
+  context "with a polymorphic data source" do
+    setup do 
+      plan do |import|
+        import.football_teams
+        import.rugby_teams
+        import.athletes
+      end
+    end
+
+    should "import two athletes" do
+      import!
+      assert_equal 2, Athlete.all.count
+    end
+
+    should "import one FootballTeam with a Kendall Athlete" do
+      import!
+      assert_kind_of FootballTeam, account.athletes.find_by_name("Kendall").team,
+        "Expected IdMap to use `[association_name]_type` to connect Kendall to a FootballTeam"
+    end
+
+    should "import one RugbyTeam with a Luke Athlete" do
+      import!
+      assert_kind_of RugbyTeam, account.athletes.find_by_name("Luke").team,
+        "Expected IdMap to use `[association_name]_type` to connect Luke to a RugbyTeam"
+    end
+  end
   
   
   

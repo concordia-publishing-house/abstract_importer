@@ -39,6 +39,25 @@ class MockDataSource
       e.yield id: 501, subject_id: 51, student_id: 457, value: "Troll"
     end
   end
+
+  def football_teams
+    Enumerator.new do |e|
+      e.yield id: 200
+    end
+  end
+  
+  def rugby_teams
+    Enumerator.new do |e|
+      e.yield id: 200
+    end
+  end
+
+  def athletes
+    Enumerator.new do |e|
+      e.yield id: 300, name: "Kendall", team_id: 200, team_type: "FootballTeam"
+      e.yield id: 301, name: "Luke", team_id: 200, team_type: "RugbyTeam"
+    end
+  end
   
   
 end

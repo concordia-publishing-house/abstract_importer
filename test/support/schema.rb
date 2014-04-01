@@ -42,4 +42,22 @@ ActiveRecord::Schema.define(:version => 1) do
     t.string   "value"
   end
 
+  create_table "football_teams", :force => true do |t|
+    t.integer  "account_id"
+    t.integer  "legacy_id"
+  end
+
+  create_table "rugby_teams", :force => true do |t|
+    t.integer  "account_id"
+    t.integer  "legacy_id"
+  end
+
+  create_table "athletes", :force => true do |t|
+    t.integer  "account_id"
+    t.integer  "legacy_id"
+    t.string   "name"
+    t.integer  "team_id"
+    t.string   "team_type"
+  end
+
 end
