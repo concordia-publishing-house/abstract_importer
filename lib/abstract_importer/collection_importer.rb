@@ -158,7 +158,7 @@ module AbstractImporter
       # rescue_callback has one shot to fix things
       invoke_callback(:rescue, record) unless record.valid?
       
-      if record.save
+      if record.valid? && record.save
         invoke_callback(:after_create, hash, record)
         id_map << record
         
