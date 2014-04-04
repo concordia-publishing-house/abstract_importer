@@ -55,32 +55,47 @@ module AbstractImporter
         # has foreign keys that refer to another
         next unless association.macro == :belongs_to
         
-        # We don't at this time support polymorphic associations
-        # which would require extending id_map to take the foreign
-        # type fields into account.
-        #
-        # Rails can't return `association.table_name` so easily
-        # because `table_name` comes from `klass` and `klass`
-        # isn't predetermined.
-        next if association.options[:polymorphic]
-        
-        depends_on = association.table_name.to_sym
-        foreign_key = association.foreign_key.to_sym
-        
         # We support skipping some mappings entirely. I believe
         # this is largely to cut down on verbosity in the log
         # files and should be refactored to another place in time.
+        foreign_key = association.foreign_key.to_sym
         next unless remap_foreign_key?(name, foreign_key)
         
-        mappings << Proc.new do |hash|
-          if hash.key?(foreign_key)
-            hash[foreign_key] = map_foreign_key(hash[foreign_key], name, foreign_key, depends_on)
-          else
-            reporter.count_notice "#{name}.#{foreign_key} will not be mapped because it is not used"
-          end
+        if association.options[:polymorphic]
+          mappings << prepare_polymorphic_mapping!(association)
+        else
+          mappings << prepare_mapping!(association)
         end
       end
       mappings
+    end
+    
+    def prepare_mapping!(association)
+      depends_on = association.table_name.to_sym
+      foreign_key = association.foreign_key.to_sym
+      
+      Proc.new do |attrs|
+        if attrs.key?(foreign_key)
+          attrs[foreign_key] = map_foreign_key(attrs[foreign_key], name, foreign_key, depends_on)
+        else
+          reporter.count_notice "#{name}.#{foreign_key} will not be mapped because it is not used"
+        end
+      end
+    end
+    
+    def prepare_polymorphic_mapping!(association)
+      foreign_key = association.foreign_key.to_sym
+      foreign_type = association.foreign_key.gsub(/_id$/, "_type").to_sym
+      
+      Proc.new do |attrs|
+        if attrs.key?(foreign_key) && attrs.key?(foreign_type)
+          foreign_model = attrs[foreign_type]
+          depends_on = foreign_model.tableize.to_sym if foreign_model
+          attrs[foreign_key] = depends_on && map_foreign_key(attrs[foreign_key], name, foreign_key, depends_on)
+        else
+          reporter.count_notice "#{name}.#{foreign_key} will not be mapped because it is not used"
+        end
+      end
     end
     
     
