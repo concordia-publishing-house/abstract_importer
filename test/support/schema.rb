@@ -8,6 +8,8 @@ ActiveRecord::Schema.define(:version => 1) do
     t.integer  "legacy_id"
     t.string   "name"
     t.string   "house"
+    t.string   "pet_type"
+    t.integer  "pet_id"
   end
   
   create_table "parents", :force => true do |t|
@@ -40,6 +42,18 @@ ActiveRecord::Schema.define(:version => 1) do
     t.integer  "student_id"
     t.integer  "legacy_id"
     t.string   "value"
+  end
+
+  create_table "owls", :force => true do |t|
+    t.integer  "account_id"
+    t.integer  "legacy_id"
+    t.string   "name"
+  end
+
+  create_table "cats", :force => true do |t|
+    t.integer  "account_id"
+    t.integer  "legacy_id"
+    t.string   "name"
   end
 
 end

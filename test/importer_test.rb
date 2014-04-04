@@ -140,4 +140,23 @@ class ImporterTest < ActiveSupport::TestCase
   
   
   
+  context "with polymorphic associations" do
+    setup do
+      plan do |import|
+        import.cats
+        import.owls
+        import.students
+      end
+    end
+    
+    should "preserve mappings" do
+      import!
+      assert_equal 2, account.students.map(&:pet).compact.count, "Expected two students to still be linked to their pets upon import"
+      assert_kind_of Owl, account.students.find_by_name("Harry Potter").pet, "Expected Harry's pet to be an Owl"
+      assert_kind_of Cat, account.students.find_by_name("Hermione Granger").pet, "Expected Harry's pet to be a Cat"
+    end
+  end
+  
+  
+  
 end

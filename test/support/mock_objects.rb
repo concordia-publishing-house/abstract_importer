@@ -2,6 +2,7 @@ class Student < ActiveRecord::Base
   has_and_belongs_to_many :subjects
   has_many :grades
   has_many :parents
+  belongs_to :pet, polymorphic: true
   
   def report_card
     subjects.map do |subject|
@@ -34,4 +35,14 @@ class Account < ActiveRecord::Base
   has_many :subjects
   has_many :grades
   has_many :locations
+  has_many :cats
+  has_many :owls
+end
+
+class Cat < ActiveRecord::Base
+  has_one :student, as: :pet
+end
+
+class Owl < ActiveRecord::Base
+  has_one :student, as: :pet
 end

@@ -3,9 +3,9 @@ class MockDataSource
   
   def students
     Enumerator.new do |e|
-      e.yield id: 456, name: "Harry Potter"
-      e.yield id: 457, name: "Ron Weasley"
-      e.yield id: 458, name: "Hermione Granger"
+      e.yield id: 456, name: "Harry Potter", pet_type: "Owl", pet_id: 901
+      e.yield id: 457, name: "Ron Weasley", pet_type: nil, pet_id: nil
+      e.yield id: 458, name: "Hermione Granger", pet_type: "Cat", pet_id: 901
     end
   end
   
@@ -37,6 +37,18 @@ class MockDataSource
     Enumerator.new do |e|
       e.yield id: 500, subject_id: 50, student_id: 457, value: "Acceptable"
       e.yield id: 501, subject_id: 51, student_id: 457, value: "Troll"
+    end
+  end
+  
+  def cats
+    Enumerator.new do |e|
+      e.yield id: 901, name: "Crookshanks"
+    end
+  end
+  
+  def owls
+    Enumerator.new do |e|
+      e.yield id: 901, name: "Hedwig"
     end
   end
   
