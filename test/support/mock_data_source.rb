@@ -3,9 +3,9 @@ class MockDataSource
   
   def students
     Enumerator.new do |e|
-      e.yield id: 456, name: "Harry Potter", pet_type: "Owl", pet_id: 901
-      e.yield id: 457, name: "Ron Weasley", pet_type: nil, pet_id: nil
-      e.yield id: 458, name: "Hermione Granger", pet_type: "Cat", pet_id: 901
+      e.yield id: 456, name: "Harry Potter", pet_type: "Owl", pet_id: 901, house: "Gryffindor"
+      e.yield id: 457, name: "Ron Weasley", pet_type: nil, pet_id: nil, house: "Gryffindor"
+      e.yield id: 458, name: "Hermione Granger", pet_type: "Cat", pet_id: 901, house: "Gryffindor"
     end
   end
   

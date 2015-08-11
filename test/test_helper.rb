@@ -41,6 +41,7 @@ class ActiveSupport::TestCase
     @data_source = MockDataSource.new
     @klass = Class.new(AbstractImporter::Base)
     @account = Account.create!
+    @options = {}
   end
   
   teardown do
@@ -50,7 +51,7 @@ class ActiveSupport::TestCase
   
 protected
   
-  attr_reader :account, :results, :data_source
+  attr_reader :account, :results, :data_source, :options
   
   def plan(&block)
     @klass.import(&block)
@@ -65,7 +66,7 @@ protected
   end
   
   def importer
-    @importer ||= @klass.new(@account, @data_source, io: $io)
+    @importer ||= @klass.new(@account, @data_source, options.merge(io: $io))
   end
   
 end

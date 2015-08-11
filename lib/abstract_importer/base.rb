@@ -36,6 +36,7 @@ module AbstractImporter
       @results      = {}
       @import_plan  = self.class.import_plan.to_h
       @atomic       = options.fetch(:atomic, false)
+      @strategies   = options.fetch(:strategy, {})
       @collections  = []
     end
     
@@ -84,6 +85,11 @@ module AbstractImporter
     end
     
     def teardown
+    end
+    
+    def strategy_for(collection)
+      strategy_name = @strategies.fetch collection.name, :default
+      AbstractImporter::Strategies.const_get :"#{strategy_name.capitalize}Strategy"
     end
     
     
