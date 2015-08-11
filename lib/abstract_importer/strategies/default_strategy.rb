@@ -31,9 +31,7 @@ module AbstractImporter
 
 
       def create_record(hash)
-        hash = invoke_callback(:before_build, hash) || hash
-
-        record = scope.build hash.merge(legacy_id: hash.delete(:id))
+        record = build_record(hash)
 
         return true if dry_run?
 
@@ -57,6 +55,13 @@ module AbstractImporter
         end
       end
 
+      def build_record(hash)
+        hash = invoke_callback(:before_build, hash) || hash
+
+        legacy_id = hash.delete(:id)
+
+        scope.build hash.merge(legacy_id: legacy_id)
+      end
 
     end
   end
