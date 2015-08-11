@@ -171,7 +171,42 @@ class ImporterTest < ActiveSupport::TestCase
       end
     end
   end
+  
+  
+  
+  context "When we specify collections to skip" do
+    setup do
+      plan do |import|
+        import.students
+        import.parents
+      end
+    end
     
+    context "using :skip" do
+      setup do
+        options.merge!(skip: :parents)
+      end
+      
+      should "not import the named collections" do
+        import!
+        assert_equal 3, account.students.length
+        assert_equal 0, account.parents.length
+      end
+    end
+    
+    context "using :only" do
+      setup do
+        options.merge!(only: [:students])
+      end
+      
+      should "import only the named collections" do
+        import!
+        assert_equal 3, account.students.length
+        assert_equal 0, account.parents.length
+      end
+    end
+  end
+  
   
   
   context "When we use the :replace strategy" do
