@@ -37,6 +37,8 @@ module AbstractImporter
       @import_plan  = self.class.import_plan.to_h
       @atomic       = options.fetch(:atomic, false)
       @strategies   = options.fetch(:strategy, {})
+      @skip         = Array(options[:skip])
+      @only         = Array(options[:only]) if options.key?(:only)
       @collections  = []
     end
     
@@ -81,10 +83,17 @@ module AbstractImporter
     end
     
     def import_collection(collection)
+      return if skip? collection
       results[collection.name] = CollectionImporter.new(self, collection).perform!
     end
     
     def teardown
+    end
+    
+    def skip?(collection)
+      return true if skip.member?(collection.name)
+      return true if only && !only.member?(collection.name)
+      false
     end
     
     def strategy_for(collection)
@@ -125,7 +134,7 @@ module AbstractImporter
     
   private
     
-    attr_reader :collections, :import_plan
+    attr_reader :collections, :import_plan, :skip, :only
     
     def verify_source!
       import_plan.keys.each do |collection|
