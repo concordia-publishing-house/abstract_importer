@@ -1,12 +1,15 @@
+require "abstract_importer/strategies"
+
 module AbstractImporter
   class CollectionImporter
     
     def initialize(importer, collection)
       @importer = importer
       @collection = collection
+      @strategy = AbstractImporter::Strategies::DefaultStrategy.new(self)
     end
     
-    attr_reader :importer, :collection, :summary
+    attr_reader :importer, :collection, :summary, :strategy
     
     delegate :name,
              :table_name,
@@ -32,7 +35,9 @@ module AbstractImporter
       
       invoke_callback(:before_all)
       summary.ms = Benchmark.ms do
-        each_new_record &method(:process_record)
+        each_new_record do |attributes|
+          strategy.process_record(attributes)
+        end
       end
       invoke_callback(:after_all)
       
@@ -100,39 +105,11 @@ module AbstractImporter
     
     
     
-    
-    
     def each_new_record
       source.public_send(name).each do |attrs|
         yield attrs.dup
       end
     end
-    
-    def process_record(hash)
-      summary.total += 1
-      
-      if already_imported?(hash)
-        summary.already_imported += 1
-        return
-      end
-      
-      remap_foreign_keys!(hash)
-      
-      if redundant_record?(hash)
-        summary.redundant += 1
-        return
-      end
-      
-      if create_record(hash)
-        summary.created += 1
-      else
-        summary.invalid += 1
-      end
-    rescue ::AbstractImporter::Skip
-      summary.skipped += 1
-    end
-    
-    
     
     
     
@@ -154,41 +131,6 @@ module AbstractImporter
       else
         false
       end
-    end
-    
-    
-    
-    
-    
-    def create_record(hash)
-      record = build_record(hash)
-      
-      return true if dry_run?
-      
-      invoke_callback(:before_create, record)
-      
-      # rescue_callback has one shot to fix things
-      invoke_callback(:rescue, record) unless record.valid?
-      
-      if record.valid? && record.save
-        invoke_callback(:after_create, hash, record)
-        id_map << record
-        
-        reporter.record_created(record)
-        true
-      else
-        
-        reporter.record_failed(record, hash)
-        false
-      end
-    end
-    
-    def build_record(hash)
-      hash = invoke_callback(:before_build, hash) || hash
-      
-      legacy_id = hash.delete(:id)
-      
-      scope.build hash.merge(legacy_id: legacy_id)
     end
     
     
