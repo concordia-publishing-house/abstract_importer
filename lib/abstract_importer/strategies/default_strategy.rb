@@ -1,23 +1,8 @@
+require "abstract_importer/strategies/base"
+
 module AbstractImporter
   module Strategies
-    class DefaultStrategy
-      attr_reader :collection
-
-      delegate :summary,
-               :already_imported?,
-               :remap_foreign_keys!,
-               :redundant_record?,
-               :invoke_callback,
-               :dry_run?,
-               :id_map,
-               :scope,
-               :reporter,
-               to: :collection
-
-      def initialize(collection)
-        @collection = collection
-      end
-
+    class DefaultStrategy < Base
 
 
       def process_record(hash)
@@ -46,17 +31,21 @@ module AbstractImporter
 
 
       def create_record(hash)
-        record = build_record(hash)
+        hash = invoke_callback(:before_build, hash) || hash
+
+        record = scope.build hash.merge(legacy_id: hash.delete(:id))
 
         return true if dry_run?
 
         invoke_callback(:before_create, record)
+        invoke_callback(:before_save, record)
 
         # rescue_callback has one shot to fix things
         invoke_callback(:rescue, record) unless record.valid?
 
         if record.valid? && record.save
           invoke_callback(:after_create, hash, record)
+          invoke_callback(:after_save, hash, record)
           id_map << record
 
           reporter.record_created(record)
@@ -68,13 +57,6 @@ module AbstractImporter
         end
       end
 
-      def build_record(hash)
-        hash = invoke_callback(:before_build, hash) || hash
-
-        legacy_id = hash.delete(:id)
-
-        scope.build hash.merge(legacy_id: legacy_id)
-      end
 
     end
   end

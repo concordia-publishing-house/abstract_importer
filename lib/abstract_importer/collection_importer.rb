@@ -113,10 +113,6 @@ module AbstractImporter
     
     
     
-    def already_imported?(hash)
-      id_map.contains? table_name, hash[:id]
-    end
-    
     def remap_foreign_keys!(hash)
       @mappings.each do |proc|
         proc.call(hash)
