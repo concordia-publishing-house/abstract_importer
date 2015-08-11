@@ -107,6 +107,7 @@ AbstractImporter optionally takes a hash of settings as a third argument:
  * `:dry_run` (default: `false`) when set to `true`, goes through all the steps except creating the records
  * `:io` (default: `$stderr`) an IO object that is passed to the reporter
  * `:reporter` (default: `AbstractImporter::Reporter.new(io)`) performs logging in response to various events
+ * `:strategy` allows you to use alternate import strategies for particular collections (See below)
 
 
 
@@ -147,7 +148,7 @@ The complete list of callbacks is below.
 
 `before_build` allows a callback to modify the hash of attributes before it is passed to `ActiveRecord::Relation#build`.
 
-##### before_create
+##### before_create, before_update, before_save
 
 `before_create` allows a callback to modify a record before `save` is called on it.
 
@@ -155,7 +156,7 @@ The complete list of callbacks is below.
 
 `rescue` (like `before_create`) is called with a record just before `save` is called. Unlike `before_create`, `rescue` is only called if the record does not pass validations.
 
-##### after_create
+##### after_create, after_update, after_save
 
 `after_create` is called with the original hash of attributes and the newly-saved record right after it is successfully saved.
 
@@ -167,6 +168,23 @@ The complete list of callbacks is below.
 
 `after_all` is called when all of the records in a collection have been processed.
 
+
+
+### Strategies
+
+The importer's default strategy is to skip records that have already been imported and create records one-by-one as ActiveRecord objects.
+
+But AbstractImporter supports alternate strategies which you can specify per collection like this:
+
+```ruby
+summary = MyImport.new(parent, data_source, strategy: {students: :replace}).perform!
+```
+
+The following alternate strategies are built in:
+
+##### replace
+
+Replaces records that have already been imported rather than skipping them.
 
 
 

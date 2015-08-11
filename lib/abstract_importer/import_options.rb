@@ -4,7 +4,11 @@ module AbstractImporter
                   :rescue,
                   :before_build,
                   :before_create,
+                  :before_update,
+                  :before_save,
                   :after_create,
+                  :after_update,
+                  :after_save,
                   :before_all,
                   :after_all ]
 

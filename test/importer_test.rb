@@ -21,12 +21,6 @@ class ImporterTest < ActiveSupport::TestCase
       import!
       assert_equal [456, 457, 458], account.students.pluck(:legacy_id)
     end
-    
-    should "not import existing records twice" do
-      account.students.create!(name: "Ron Weasley", legacy_id: 457)
-      import!
-      assert_equal 3, account.students.count
-    end
   end
   
   
@@ -154,6 +148,50 @@ class ImporterTest < ActiveSupport::TestCase
       assert_equal 2, account.students.map(&:pet).compact.count, "Expected two students to still be linked to their pets upon import"
       assert_kind_of Owl, account.students.find_by_name("Harry Potter").pet, "Expected Harry's pet to be an Owl"
       assert_kind_of Cat, account.students.find_by_name("Hermione Granger").pet, "Expected Harry's pet to be a Cat"
+    end
+  end
+  
+  
+  
+  context "When we use the default strategy" do
+    setup do
+      plan do |import|
+        import.students
+      end
+    end
+    
+    context "and records already exist" do
+      setup do
+        account.students.create!(name: "Ron Weasley", legacy_id: 457)
+      end
+      
+      should "not import existing records twice" do
+        import!
+        assert_equal 3, account.students.count
+      end
+    end
+  end
+    
+  
+  
+  context "When we use the :replace strategy" do
+    setup do
+      options.merge!(strategy: {students: :replace})
+      plan do |import|
+        import.students
+      end
+    end
+    
+    context "and records already exist" do
+      setup do
+        account.students.create!(name: "Ron Weasley", legacy_id: 457)
+      end
+      
+      should "reimport the existing records" do
+        import!
+        assert_equal "Gryffindor", account.students.find_by_name("Ron Weasley").house,
+          "Expected Ron's record to have been replaced with one that has a house"
+      end
     end
   end
   
