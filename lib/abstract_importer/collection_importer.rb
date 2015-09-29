@@ -40,6 +40,7 @@ module AbstractImporter
           strategy.process_record(attributes)
         end
       end
+      strategy.flush
       invoke_callback(:after_all)
       
       reporter.finish_collection(self, summary)

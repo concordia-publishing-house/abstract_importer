@@ -26,6 +26,9 @@ module AbstractImporter
         id_map.contains? collection.table_name, hash[:id]
       end
 
+      def flush
+      end
+
       def prepare_attributes(hash)
         hash = invoke_callback(:before_build, hash) || hash
 
