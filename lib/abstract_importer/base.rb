@@ -1,6 +1,6 @@
 require 'abstract_importer/import_options'
 require 'abstract_importer/import_plan'
-require 'abstract_importer/reporter'
+require 'abstract_importer/reporters'
 require 'abstract_importer/collection'
 require 'abstract_importer/collection_importer'
 require 'abstract_importer/id_map'
@@ -29,7 +29,7 @@ module AbstractImporter
       @parent       = parent
       
       io            = options.fetch(:io, $stderr)
-      @reporter     = Reporter.new(io, Rails.env.production?)
+      @reporter     = default_reporter(io)
       @dry_run      = options.fetch(:dry_run, false)
       
       @id_map       = IdMap.new
@@ -211,6 +211,14 @@ module AbstractImporter
         ActiveRecord::Base.transaction(requires_new: true, &block)
       else
         block.call
+      end
+    end
+    
+    def default_reporter(io)
+      case ENV["IMPORT_REPORTER"].to_s.downcase
+      when "none"        then Reporters::NullReporter.new(io)
+      when "performance" then Reporters::PerformanceReporter.new(io)
+      else                    Reporters::DebugReporter.new(io)
       end
     end
     
