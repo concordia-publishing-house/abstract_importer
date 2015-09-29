@@ -181,20 +181,12 @@ module AbstractImporter
     
     def prepopulate_id_map!
       (collections + dependencies).each do |collection|
-        query = collection.scope.where("#{collection.table_name}.legacy_id IS NOT NULL")
-        map = values_of(query, :id, :legacy_id) \
+        map = collection.scope
+          .where("#{collection.table_name}.legacy_id IS NOT NULL")
+          .pluck(:id, :legacy_id)
           .each_with_object({}) { |(id, legacy_id), map| map[legacy_id] = id }
         
         id_map.init collection.table_name, map
-      end
-    end
-    
-    def values_of(query, *columns)
-      if Rails.version < "4.0.0"
-        query = query.select(columns.map { |column| "#{query.table_name}.#{column}" }.join(", "))
-        ActiveRecord::Base.connection.select_rows(query.to_sql)
-      else
-        query.pluck(*columns)
       end
     end
     
