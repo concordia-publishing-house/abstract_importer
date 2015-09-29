@@ -58,13 +58,7 @@ module AbstractImporter
       end
 
       def build_record(hash)
-        hash = invoke_callback(:before_build, hash) || hash
-
-        legacy_id = hash.delete(:id)
-
-        collection.model.new(hash
-          .merge(legacy_id: legacy_id)
-          .merge(collection.association_attrs))
+        collection.model.new prepare_attributes(hash)
       end
 
       def clean_record(record)
