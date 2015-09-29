@@ -62,7 +62,9 @@ module AbstractImporter
 
         legacy_id = hash.delete(:id)
 
-        scope.build hash.merge(legacy_id: legacy_id)
+        collection.model.new(hash
+          .merge(legacy_id: legacy_id)
+          .merge(collection.association_attrs))
       end
 
       def clean_record(record)
