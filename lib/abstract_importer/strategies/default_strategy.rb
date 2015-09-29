@@ -33,15 +33,13 @@ module AbstractImporter
       def create_record(hash)
         record = build_record(hash)
 
-        return true if dry_run?
-
         invoke_callback(:before_create, record)
         invoke_callback(:before_save, record)
 
         # rescue_callback has one shot to fix things
         invoke_callback(:rescue, record) unless record.valid?
 
-        if record.valid? && record.save
+        if record.valid? && save(record)
           invoke_callback(:after_create, hash, record)
           invoke_callback(:after_save, hash, record)
           id_map << record
@@ -52,6 +50,15 @@ module AbstractImporter
 
           reporter.record_failed(record, hash)
           false
+        end
+      end
+
+      def save(record)
+        if dry_run?
+          record.id = ($dry_run_id = ($dry_run_id || 0) + 1) # "save" the record
+          true
+        else
+          record.save
         end
       end
 
