@@ -181,12 +181,8 @@ module AbstractImporter
     
     def prepopulate_id_map!
       (collections + dependencies).each do |collection|
-        map = collection.scope
+        id_map.init collection.table_name, collection.scope
           .where("#{collection.table_name}.legacy_id IS NOT NULL")
-          .pluck(:id, :legacy_id)
-          .each_with_object({}) { |(id, legacy_id), map| map[legacy_id] = id }
-        
-        id_map.init collection.table_name, map
       end
     end
     
