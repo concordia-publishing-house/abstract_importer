@@ -16,6 +16,7 @@ module AbstractImporter
              :model,
              :scope,
              :options,
+             :association_attrs,
              :to => :collection
     
     delegate :dry_run?,

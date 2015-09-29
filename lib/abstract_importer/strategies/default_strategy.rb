@@ -47,10 +47,12 @@ module AbstractImporter
           id_map << record
 
           reporter.record_created(record)
+          clean_record(record)
           true
         else
 
           reporter.record_failed(record, hash)
+          clean_record(record)
           false
         end
       end
@@ -60,7 +62,20 @@ module AbstractImporter
 
         legacy_id = hash.delete(:id)
 
-        scope.build hash.merge(legacy_id: legacy_id)
+        collection.model.new(hash
+          .merge(legacy_id: legacy_id)
+          .merge(collection.association_attrs))
+      end
+
+      def clean_record(record)
+        # If this record isn't able to be garbage-collected,
+        # then we will print out all of the objects that are
+        # retaining a reference to this one. Ruby's garbage-
+        # collector is smart enough to clean up objects with
+        # circular references; but if we free these now, we
+        # will have fewer results to consider later.
+        record.remove_instance_variable :@association_cache
+        record.remove_instance_variable :@errors
       end
 
     end
