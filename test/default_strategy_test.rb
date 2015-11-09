@@ -1,7 +1,7 @@
 require "test_helper"
 
 
-class ImporterTest < ActiveSupport::TestCase
+class DefaultStrategyTest < ActiveSupport::TestCase
 
 
 
@@ -153,22 +153,17 @@ class ImporterTest < ActiveSupport::TestCase
 
 
 
-  context "When we use the default strategy" do
+  context "When records already exist" do
     setup do
       plan do |import|
         import.students
       end
+      account.students.create!(name: "Ron Weasley", legacy_id: 457)
     end
 
-    context "and records already exist" do
-      setup do
-        account.students.create!(name: "Ron Weasley", legacy_id: 457)
-      end
-
-      should "not import existing records twice" do
-        import!
-        assert_equal 3, account.students.count
-      end
+    should "not import existing records twice" do
+      import!
+      assert_equal 3, account.students.count
     end
   end
 
@@ -203,72 +198,6 @@ class ImporterTest < ActiveSupport::TestCase
         import!
         assert_equal 3, account.students.length
         assert_equal 0, account.parents.length
-      end
-    end
-  end
-
-
-
-  context "When we use the :replace strategy" do
-    setup do
-      options.merge!(strategy: {students: :replace})
-      plan do |import|
-        import.students
-      end
-    end
-
-    context "and records already exist" do
-      setup do
-        account.students.create!(name: "Ron Weasley", legacy_id: 457)
-      end
-
-      should "reimport the existing records" do
-        import!
-        assert_equal "Gryffindor", account.students.find_by_name("Ron Weasley").house,
-          "Expected Ron's record to have been replaced with one that has a house"
-      end
-    end
-  end
-
-
-
-  context "When we use the :insert strategy" do
-    setup do
-      options.merge!(strategy: {students: :insert})
-    end
-
-    context "with a simple data source" do
-      setup do
-        plan do |import|
-          import.students
-        end
-      end
-
-      should "import the records in batches" do
-        mock.proxy(Student).insert_many(satisfy { |arg| arg.length == 3 })
-        import!
-        assert_equal [456, 457, 458], account.students.pluck(:legacy_id)
-      end
-    end
-
-    context "with a complex data source" do
-      setup do
-        plan do |import|
-          import.students
-          import.parents
-        end
-      end
-
-      should "preserve mappings" do
-        import!
-        harry = account.students.find_by_name("Harry Potter")
-        assert_equal ["James Potter", "Lily Potter"], harry.parents.pluck(:name)
-      end
-
-      should "preserve mappings even when a record was previously imported" do
-        harry = account.students.create!(name: "Harry Potter", legacy_id: 456)
-        import!
-        assert_equal ["James Potter", "Lily Potter"], harry.parents.pluck(:name)
       end
     end
   end
