@@ -3,7 +3,7 @@ class Student < ActiveRecord::Base
   has_many :grades
   has_many :parents
   belongs_to :pet, polymorphic: true
-  
+
   def report_card
     subjects.map do |subject|
       grade = grades.find_by_subject_id(subject.id)

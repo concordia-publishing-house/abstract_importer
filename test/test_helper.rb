@@ -34,39 +34,39 @@ $io = ENV['VERBOSE'] ? $stderr : File.open("/dev/null", "w")
 
 
 class ActiveSupport::TestCase
-  
+
   setup do
     DatabaseCleaner.start
-    
+
     @data_source = MockDataSource.new
     @klass = Class.new(AbstractImporter::Base)
     @account = Account.create!
     @options = {}
   end
-  
+
   teardown do
     DatabaseCleaner.clean
     @importer = nil
   end
-  
+
 protected
-  
+
   attr_reader :account, :results, :data_source, :options
-  
+
   def plan(&block)
     @klass.import(&block)
   end
-  
+
   def depends_on(*args)
     @klass.depends_on(*args)
   end
-  
+
   def import!
     @results = importer.perform!
   end
-  
+
   def importer
     @importer ||= @klass.new(@account, @data_source, options.merge(io: $io))
   end
-  
+
 end

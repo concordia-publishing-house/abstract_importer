@@ -2,9 +2,9 @@ require "test_helper"
 
 
 class CallbackTest < ActiveSupport::TestCase
-  
-  
-  
+
+
+
   context "before_build" do
     setup do
       plan do |import|
@@ -13,12 +13,12 @@ class CallbackTest < ActiveSupport::TestCase
         end
       end
     end
-    
+
     should "should be invoked on the incoming attributes" do
       import!
       assert_equal ["Harry", "Ron", "Hermione"], account.students.pluck(:name)
     end
-    
+
     should "allow you to skip certain records" do
       plan do |import|
         import.students do |options|
@@ -27,15 +27,15 @@ class CallbackTest < ActiveSupport::TestCase
           end
         end
       end
-      
+
       import!
       assert_equal ["Ron Weasley", "Hermione Granger"], account.students.pluck(:name)
       assert_equal 1, results[:students].skipped
     end
   end
-  
-  
-  
+
+
+
   context "before_create" do
     setup do
       plan do |import|
@@ -44,15 +44,15 @@ class CallbackTest < ActiveSupport::TestCase
         end
       end
     end
-    
+
     should "should be invoked on imported records before they are saved" do
       import!
       assert_equal ["Gryffindor"], account.students.pluck(:house).uniq
     end
   end
-  
-  
-  
+
+
+
   context "after_create" do
     setup do
       plan do |import|
@@ -61,7 +61,7 @@ class CallbackTest < ActiveSupport::TestCase
         end
       end
     end
-    
+
     should "should be invoked after the record is created" do
       mock(importer).callback({name: "Harry Potter"}, satisfy(&:persisted?)).once
       mock(importer).callback({name: "Ron Weasley"}, satisfy(&:persisted?)).once
@@ -69,9 +69,9 @@ class CallbackTest < ActiveSupport::TestCase
       import!
     end
   end
-  
-  
-  
+
+
+
   context "rescue" do
     setup do
       plan do |import|
@@ -80,15 +80,15 @@ class CallbackTest < ActiveSupport::TestCase
         end
       end
     end
-    
+
     should "should be given a chance to amend an invalid record" do
       import!
       assert_equal ["godrics-hollow", "azkaban"], account.locations.pluck(:slug)
     end
   end
-  
-  
-  
+
+
+
   context "before_all" do
     setup do
       plan do |import|
@@ -97,15 +97,15 @@ class CallbackTest < ActiveSupport::TestCase
         end
       end
     end
-    
+
     should "should be invoked before the collection has been imported" do
       mock(importer).callback.once
       import!
     end
   end
-  
-  
-  
+
+
+
   context "after_all" do
     setup do
       plan do |import|
@@ -114,13 +114,13 @@ class CallbackTest < ActiveSupport::TestCase
         end
       end
     end
-    
+
     should "should be invoked after the collection has been imported" do
       mock(importer).callback.once
       import!
     end
   end
-  
-  
-  
+
+
+
 end
