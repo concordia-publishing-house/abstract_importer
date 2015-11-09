@@ -36,7 +36,17 @@ module AbstractImporter
 
 
       def flush
-        collection.scope.insert_many(@batch)
+        invoke_callback(:before_batch, @batch)
+
+        begin
+          tries = (tries || 0) + 1
+          collection.scope.insert_many(@batch)
+        rescue
+          raise if tries > 1
+          invoke_callback(:rescue_batch, @batch)
+          retry
+        end
+
         id_map.merge! collection.table_name, collection.scope
           .where(legacy_id: @batch.map { |hash| hash[:legacy_id] })
         @batch = []

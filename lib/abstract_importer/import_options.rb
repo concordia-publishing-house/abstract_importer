@@ -2,7 +2,9 @@ module AbstractImporter
   class ImportOptions
     CALLBACKS = [ :finder,
                   :rescue,
+                  :rescue_batch,
                   :before_build,
+                  :before_batch,
                   :before_create,
                   :before_update,
                   :before_save,

@@ -10,6 +10,7 @@ ActiveRecord::Schema.define(:version => 1) do
     t.string   "house"
     t.string   "pet_type"
     t.integer  "pet_id"
+    t.index    "name", :unique => true
   end
 
   create_table "parents", :force => true do |t|

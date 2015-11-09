@@ -44,6 +44,39 @@ class ImporterTest < ActiveSupport::TestCase
     end
   end
 
+  context "When records already exist" do
+    setup do
+      plan do |import|
+        import.students
+      end
+      account.students.create!(name: "Ron Weasley", legacy_id: 457)
+    end
+
+    should "not import existing records twice" do
+      import!
+      assert_equal 3, account.students.count
+    end
+  end
+
+  context "When the import would create a duplicate record" do
+    setup do
+      plan do |import|
+        import.students do |options|
+          options.rescue_batch do |batch|
+            names = parent.students.pluck :name
+            batch.reject! { |student| names.member? student[:name] }
+          end
+        end
+      end
+      account.students.create!(name: "Ron Weasley")
+    end
+
+    should "not import existing records twice" do
+      import!
+      assert_equal 3, account.students.count
+    end
+  end
+
 
 
 end
