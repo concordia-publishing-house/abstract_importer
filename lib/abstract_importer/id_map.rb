@@ -17,9 +17,7 @@ module AbstractImporter
 
     def merge!(table_name, query)
       table_name = table_name.to_sym
-      @id_map[table_name].merge!(query
-        .pluck(:id, :legacy_id)
-        .each_with_object({}) { |(id, legacy_id), map| map[legacy_id] = id })
+      @id_map[table_name].merge! Hash[query.pluck(:legacy_id, :id)]
     end
 
     def get(table_name)
