@@ -206,7 +206,14 @@ module AbstractImporter
       case ENV["IMPORT_REPORTER"].to_s.downcase
       when "none"        then Reporters::NullReporter.new(io)
       when "performance" then Reporters::PerformanceReporter.new(io)
-      else                    Reporters::DebugReporter.new(io)
+      when "debug"       then Reporters::DebugReporter.new(io)
+      when "dot"         then Reporters::DotReporter.new(io)
+      else
+        if Rails.env.production?
+          Reporters::DebugReporter.new(io)
+        else
+          Reporters::DotReporter.new(io)
+        end
       end
     end
 

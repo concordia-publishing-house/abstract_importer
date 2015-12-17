@@ -49,13 +49,7 @@ module AbstractImporter
 
 
 
-      def record_created(record)
-        io.print "." unless production?
-      end
-
       def record_failed(record, hash)
-        io.print "×" unless production?
-
         error_messages = invalid_params[record.class.name] ||= {}
         record.errors.full_messages.each do |error_message|
           error_messages[error_message] = hash unless error_messages.key?(error_message)
