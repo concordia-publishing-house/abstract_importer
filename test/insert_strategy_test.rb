@@ -21,6 +21,16 @@ class ImporterTest < ActiveSupport::TestCase
       import!
       assert_equal [456, 457, 458], account.students.pluck(:legacy_id)
     end
+
+    should "report that it found 3 records" do
+      summary = import!
+      assert_equal 3, summary[:students].total
+    end
+
+    should "report that it created 3 records" do
+      summary = import!
+      assert_equal 3, summary[:students].created
+    end
   end
 
   context "with a complex data source" do
