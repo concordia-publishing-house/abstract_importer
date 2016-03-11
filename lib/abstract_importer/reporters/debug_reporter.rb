@@ -50,9 +50,9 @@ module AbstractImporter
 
 
       def record_failed(record, hash)
-        error_messages = invalid_params[record.class.name] ||= {}
+        error_messages = invalid_params[record.class.name] ||= Hash.new { |hash, key| hash[key] = [] }
         record.errors.full_messages.each do |error_message|
-          error_messages[error_message] = hash unless error_messages.key?(error_message)
+          error_messages[error_message].push hash
           count_error(error_message)
         end
       end
@@ -89,11 +89,17 @@ module AbstractImporter
 
       def print_invalid_params
         return if invalid_params.empty?
-        status "\n\n\n#{("="*80)}\nExamples of invalid hashes\n#{("="*80)}"
+        status "\n\n\n#{("="*80)}\nInvalid records\n#{("="*80)}"
         invalid_params.each do |model_name, errors|
           status "\n\n--#{model_name}#{("-"*(78 - model_name.length))}"
-          errors.each do |error_message, hash|
-            status "\n  #{error_message}:\n    #{hash.inspect}"
+          errors.each do |error_message, hashes|
+            status "\n  #{error_message}:"
+            hashes.each do |hash|
+              status "\n"
+              hash.each do |key, value|
+                status "    #{key.inspect}\t#{value.inspect}"
+              end
+            end
           end
         end
       end
