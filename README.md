@@ -1,7 +1,8 @@
 # AbstractImporter
 
-[![Build Status](https://travis-ci.org/concordia-publishing-house/abstract_importer.png?branch=master)](https://travis-ci.org/concordia-publishing-house/abstract_importer)
-[![Code Climate](https://codeclimate.com/github/concordia-publishing-house/abstract_importer.png)](https://codeclimate.com/github/concordia-publishing-house/abstract_importer)
+[![Gem Version](https://badge.fury.io/rb/abstract_importer.svg)](https://rubygems.org/gems/abstract_importer)
+[![Code Climate](https://codeclimate.com/github/cph/abstract_importer.svg)](https://codeclimate.com/github/cph/abstract_importer)
+[![Build Status](https://travis-ci.org/cph/abstract_importer.svg)](https://travis-ci.org/cph/abstract_importer)
 
 AbstractImporter provides services for importing complex data from an arbitrary data source. It:
 
