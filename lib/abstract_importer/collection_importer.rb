@@ -97,7 +97,7 @@ module AbstractImporter
       Proc.new do |attrs|
         if attrs.key?(foreign_key) && attrs.key?(foreign_type)
           foreign_model = attrs[foreign_type]
-          depends_on = foreign_model.tableize.to_sym if foreign_model
+          depends_on = foreign_model.constantize.table_name.to_sym if foreign_model
           attrs[foreign_key] = depends_on && map_foreign_key(attrs[foreign_key], name, foreign_key, depends_on)
         else
           reporter.count_notice "#{name}.#{foreign_key} will not be mapped because it is not used"
