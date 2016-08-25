@@ -51,6 +51,7 @@ module AbstractImporter
         id_map.merge! collection.table_name, ids
 
         summary.created += ids.length
+        reporter.batch_inserted(ids.length)
 
         @batch = []
       end

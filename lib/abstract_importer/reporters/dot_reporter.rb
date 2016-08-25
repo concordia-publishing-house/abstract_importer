@@ -13,6 +13,11 @@ module AbstractImporter
         super
       end
 
+      def batch_inserted(size)
+        io.print "." * size
+        super
+      end
+
 
     end
   end

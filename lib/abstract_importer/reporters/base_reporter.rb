@@ -36,6 +36,9 @@ module AbstractImporter
       def record_failed(record, hash)
       end
 
+      def batch_inserted(size)
+      end
+
 
 
       def count_notice(message)
