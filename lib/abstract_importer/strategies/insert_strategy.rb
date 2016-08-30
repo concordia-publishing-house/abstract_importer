@@ -5,10 +5,10 @@ module AbstractImporter
   module Strategies
     class InsertStrategy < Base
 
-      def initialize(collection)
+      def initialize(collection, options={})
         super
         @batch = []
-        @batch_size = 250
+        @batch_size = options.fetch(:batch_size, 250)
       end
 
 

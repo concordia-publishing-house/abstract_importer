@@ -96,9 +96,16 @@ module AbstractImporter
       false
     end
 
-    def strategy_for(collection)
+    def strategy_for(collection_importer)
+      collection = collection_importer.collection
       strategy_name = @strategies.fetch collection.name, :default
-      AbstractImporter::Strategies.const_get :"#{strategy_name.capitalize}Strategy"
+      strategy_options = {}
+      if strategy_name.is_a?(Hash)
+        strategy_options = strategy_name
+        strategy_name = strategy_name[:name]
+      end
+      strategy_klass = AbstractImporter::Strategies.const_get :"#{strategy_name.capitalize}Strategy"
+      strategy_klass.new(collection_importer, strategy_options)
     end
 
 

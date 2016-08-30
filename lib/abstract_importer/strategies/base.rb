@@ -14,7 +14,7 @@ module AbstractImporter
                :association_attrs,
                to: :collection
 
-      def initialize(collection)
+      def initialize(collection, options={})
         @collection = collection
       end
 

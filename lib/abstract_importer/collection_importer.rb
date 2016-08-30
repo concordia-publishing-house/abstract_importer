@@ -6,7 +6,7 @@ module AbstractImporter
     def initialize(importer, collection)
       @importer = importer
       @collection = collection
-      @strategy = importer.strategy_for(collection).new(self)
+      @strategy = importer.strategy_for(self)
     end
 
     attr_reader :importer, :collection, :summary, :strategy
