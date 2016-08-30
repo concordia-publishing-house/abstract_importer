@@ -15,5 +15,9 @@ module AbstractImporter
       @assocation_attrs.freeze
     end
 
+    def has_legacy_id?
+      @has_legacy_id ||= model.column_names.member?("legacy_id")
+    end
+
   end
 end

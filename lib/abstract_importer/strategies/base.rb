@@ -16,6 +16,11 @@ module AbstractImporter
 
       def initialize(collection, options={})
         @collection = collection
+        @remap_ids = options.fetch(:id_map, collection.has_legacy_id?)
+      end
+
+      def remap_ids?
+        @remap_ids
       end
 
       def process_record(hash)
@@ -32,9 +37,9 @@ module AbstractImporter
       def prepare_attributes(hash)
         hash = invoke_callback(:before_build, hash) || hash
 
-        legacy_id = hash.delete(:id)
+        hash = hash.merge(legacy_id: hash.delete(:id)) if remap_ids?
 
-        hash.merge(legacy_id: legacy_id).merge(association_attrs)
+        hash.merge(association_attrs)
       end
 
     end

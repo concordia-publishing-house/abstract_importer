@@ -129,6 +129,10 @@ module AbstractImporter
     end
 
     def map_foreign_key(legacy_id, plural, foreign_key, depends_on)
+      return nil if legacy_id.nil?
+      collection = collections.find { |collection| collection.name == depends_on } ||
+                   dependencies.find { |collection| collection.name == depends_on }
+      return legacy_id if collection && !collection.has_legacy_id?
       id_map.apply!(legacy_id, depends_on)
     rescue IdMap::IdNotMappedError
       record_no_id_in_map_error(legacy_id, plural, foreign_key, depends_on)
@@ -188,6 +192,7 @@ module AbstractImporter
 
     def prepopulate_id_map!
       (collections + dependencies).each do |collection|
+        next unless collection.has_legacy_id?
         id_map.init collection.table_name, collection.scope
           .where("#{collection.table_name}.legacy_id IS NOT NULL")
       end

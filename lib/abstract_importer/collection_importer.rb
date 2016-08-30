@@ -17,6 +17,7 @@ module AbstractImporter
              :scope,
              :options,
              :association_attrs,
+             :has_legacy_id?,
              :to => :collection
 
     delegate :dry_run?,

@@ -44,7 +44,7 @@ module AbstractImporter
         if record.valid? && record.save
           invoke_callback(:after_create, hash, record)
           invoke_callback(:after_save, hash, record)
-          id_map << record
+          id_map << record if remap_ids?
 
           reporter.record_created(record)
           clean_record(record)

@@ -37,7 +37,7 @@ module AbstractImporter
       def update_record(hash)
         hash = invoke_callback(:before_build, hash) || hash
 
-        record = scope.find_by(legacy_id: hash.delete(:id))
+        record = remap_ids? ? scope.find_by(legacy_id: hash.delete(:id)) : scope.find_by(id: hash[:id])
         record.attributes = hash
 
         return true if dry_run?

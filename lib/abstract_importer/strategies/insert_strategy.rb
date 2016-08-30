@@ -47,11 +47,13 @@ module AbstractImporter
           retry
         end
 
-        ids = collection.scope.where(legacy_id: @batch.map { |hash| hash[:legacy_id] })
-        id_map.merge! collection.table_name, ids
+        if remap_ids?
+          id_map.merge! collection.table_name,
+            collection.scope.where(legacy_id: @batch.map { |hash| hash[:legacy_id] })
+        end
 
-        summary.created += ids.length
-        reporter.batch_inserted(ids.length)
+        summary.created += @batch.length
+        reporter.batch_inserted(@batch.length)
 
         @batch = []
       end
