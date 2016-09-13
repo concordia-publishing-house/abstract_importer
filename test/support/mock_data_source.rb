@@ -52,5 +52,11 @@ class MockDataSource
     end
   end
 
+  def abilities
+    Enumerator.new do |e|
+      e.yield id: 701, name: "Hyperactivity"
+    end
+  end
+
 
 end

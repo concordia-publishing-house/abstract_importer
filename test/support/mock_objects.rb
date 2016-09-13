@@ -41,8 +41,14 @@ end
 
 class Cat < ActiveRecord::Base
   has_one :student, as: :pet
+  has_many :abilities, as: :pet, inverse_of: :pet
 end
 
 class Owl < ActiveRecord::Base
   has_one :student, as: :pet
+  has_many :abilities, as: :pet, inverse_of: :pet
+end
+
+class Ability < ActiveRecord::Base
+  belongs_to :pet, inverse_of: :abilities, polymorphic: true
 end

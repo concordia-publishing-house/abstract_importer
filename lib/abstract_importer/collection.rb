@@ -2,17 +2,20 @@ module AbstractImporter
   class Collection < Struct.new(:name, :model, :table_name, :scope, :options)
 
     def association_attrs
-      return @assocation_attrs if defined?(@assocation_attrs)
+      return @association_attrs if defined?(@association_attrs)
 
       # Instead of calling `tenant.people.build(__)`, we'll reflect on the
       # association to find its foreign key and its owner's id, so that we
       # can call `Person.new(__.merge(tenant_id: id))`.
-      @assocation_attrs = {}
-      assocation = scope.instance_variable_get(:@association)
-      unless assocation.is_a?(ActiveRecord::Associations::HasManyThroughAssociation)
-        @assocation_attrs.merge!(assocation.reflection.foreign_key.to_sym => assocation.owner.id)
+      @association_attrs = {}
+      association = scope.instance_variable_get(:@association)
+      unless association.is_a?(ActiveRecord::Associations::HasManyThroughAssociation)
+        @association_attrs.merge!(association.reflection.foreign_key.to_sym => association.owner.id)
       end
-      @assocation_attrs.freeze
+      if association.reflection.inverse_of && association.reflection.inverse_of.polymorphic?
+        @association_attrs.merge!(association.reflection.inverse_of.foreign_type.to_sym => association.owner.class.name)
+      end
+      @association_attrs.freeze
     end
 
     def has_legacy_id?

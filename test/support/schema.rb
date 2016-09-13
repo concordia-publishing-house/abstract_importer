@@ -57,4 +57,11 @@ ActiveRecord::Schema.define(:version => 1) do
     t.string   "name"
   end
 
+  create_table "abilities", :force => true do |t|
+    t.string   "pet_type"
+    t.integer  "pet_id"
+    t.integer  "legacy_id"
+    t.string   "name"
+  end
+
 end

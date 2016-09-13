@@ -87,6 +87,20 @@ class ImporterTest < ActiveSupport::TestCase
     end
   end
 
+  context "When the imported records belong to a parent polymorphically" do
+    setup do
+      @account = Owl.create!(name: "Pigwidgeon")
+      plan do |import|
+        import.abilities
+      end
+    end
+
+    should "import records just fine" do
+      pet = @account
+      import!
+      assert_equal [["Owl", pet.id]], Ability.pluck(:pet_type, :pet_id)
+    end
+  end
 
 
 end
