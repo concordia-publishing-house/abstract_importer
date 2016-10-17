@@ -43,7 +43,8 @@ module AbstractImporter
       @collections  = []
     end
 
-    attr_reader :source, :parent, :reporter, :id_map, :results
+    attr_reader :source, :parent, :reporter, :id_map, :results,
+                :collections, :import_plan, :skip, :only
 
     def atomic?
       @atomic
@@ -145,8 +146,6 @@ module AbstractImporter
 
 
   private
-
-    attr_reader :collections, :import_plan, :skip, :only
 
     def verify_source!
       import_plan.keys.each do |collection|
