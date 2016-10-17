@@ -5,9 +5,9 @@ SimpleCov.start do
   add_filter "test/"
 end
 
-require "rails"
-require "rails/test_help"
-require "turn"
+require "minitest/reporters/turn_reporter"
+MiniTest::Reporters.use! Minitest::Reporters::TurnReporter.new
+
 require "pry"
 require "rr"
 require "database_cleaner"
@@ -16,13 +16,17 @@ require "shoulda/context"
 require "active_record"
 require "support/mock_data_source"
 require "support/mock_objects"
+require "minitest/autorun"
 
 
+
+system "psql -c 'create database abstract_importer_test'"
 
 ActiveRecord::Base.establish_connection(
-  :adapter => "sqlite3",
-  :database => ":memory:",
-  :verbosity => "quiet")
+  adapter: "postgresql",
+  host: "localhost",
+  database: "abstract_importer_test",
+  verbosity: "quiet")
 
 load File.join(File.dirname(__FILE__), "support", "schema.rb")
 

@@ -12,12 +12,6 @@ module AbstractImporter
 
 
 
-      def production?
-        Rails.env.production?
-      end
-
-
-
       def start_all(importer)
         super
       end
@@ -75,7 +69,6 @@ module AbstractImporter
 
 
       def count_notice(message)
-        return if production?
         @notices[message] = (@notices[message] || 0) + 1
       end
 

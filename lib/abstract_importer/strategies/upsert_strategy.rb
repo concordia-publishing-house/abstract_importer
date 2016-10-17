@@ -1,24 +1,13 @@
-require "abstract_importer/strategies/base"
+require "abstract_importer/strategies/insert_strategy"
 require "activerecord/insert_many"
 
 module AbstractImporter
   module Strategies
-    class InsertStrategy < Base
-
-      def initialize(collection, options={})
-        super
-        @batch = []
-        @batch_size = options.fetch(:batch_size, 250)
-      end
+    class UpsertStrategy < InsertStrategy
 
 
       def process_record(hash)
         summary.total += 1
-
-        if already_imported?(hash)
-          summary.already_imported += 1
-          return
-        end
 
         remap_foreign_keys!(hash)
 
@@ -38,7 +27,10 @@ module AbstractImporter
       def flush
         invoke_callback(:before_batch, @batch)
 
-        collection.scope.insert_many(@batch)
+        collection.scope.insert_many(@batch, on_conflict: {
+          column: remap_ids? ? :legacy_id : :id,
+          do: :update
+        })
 
         if remap_ids?
           id_map.merge! collection.table_name,

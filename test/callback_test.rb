@@ -63,9 +63,9 @@ class CallbackTest < ActiveSupport::TestCase
     end
 
     should "should be invoked after the record is created" do
-      mock(importer).callback({name: "Harry Potter"}, satisfy(&:persisted?)).once
-      mock(importer).callback({name: "Ron Weasley"}, satisfy(&:persisted?)).once
-      mock(importer).callback({name: "Hermione Granger"}, satisfy(&:persisted?)).once
+      mock(importer).callback(hash_including(name: "Harry Potter"), satisfy(&:persisted?)).once
+      mock(importer).callback(hash_including(name: "Ron Weasley"), satisfy(&:persisted?)).once
+      mock(importer).callback(hash_including(name: "Hermione Granger"), satisfy(&:persisted?)).once
       import!
     end
   end

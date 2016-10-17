@@ -1,10 +1,10 @@
 require "test_helper"
 
 
-class InsertStrategyTest < ActiveSupport::TestCase
+class UpsertStrategyTest < ActiveSupport::TestCase
 
   setup do
-    options.merge!(strategy: {students: :insert})
+    options.merge!(strategy: {students: :upsert})
   end
 
 
@@ -17,7 +17,7 @@ class InsertStrategyTest < ActiveSupport::TestCase
     end
 
     should "import the records in batches" do
-      mock.proxy(Student).insert_many(satisfy { |arg| arg.length == 3 })
+      mock.proxy(Student).insert_many(satisfy { |arg| arg.length == 3 }, anything)
       import!
       assert_equal [456, 457, 458], account.students.pluck(:legacy_id)
     end
@@ -59,12 +59,17 @@ class InsertStrategyTest < ActiveSupport::TestCase
       plan do |import|
         import.students
       end
-      account.students.create!(name: "Ron Weasley", legacy_id: 457)
+      account.students.create!(name: "Ronaldo Weasley", legacy_id: 457)
     end
 
     should "not import existing records twice" do
       import!
       assert_equal 3, account.students.count
+    end
+
+    should "update the existing record" do
+      import!
+      assert_equal ["Ron Weasley"], account.students.where(legacy_id: 457).pluck(:name)
     end
   end
 

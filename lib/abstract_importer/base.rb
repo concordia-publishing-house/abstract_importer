@@ -1,10 +1,11 @@
-require 'abstract_importer/import_options'
-require 'abstract_importer/import_plan'
-require 'abstract_importer/reporters'
-require 'abstract_importer/collection'
-require 'abstract_importer/collection_importer'
-require 'abstract_importer/id_map'
-require 'abstract_importer/summary'
+require "active_support/core_ext/module/delegation"
+require "abstract_importer/import_options"
+require "abstract_importer/import_plan"
+require "abstract_importer/reporters"
+require "abstract_importer/collection"
+require "abstract_importer/collection_importer"
+require "abstract_importer/id_map"
+require "abstract_importer/summary"
 
 
 module AbstractImporter
@@ -221,7 +222,7 @@ module AbstractImporter
       when "debug"       then Reporters::DebugReporter.new(io)
       when "dot"         then Reporters::DotReporter.new(io)
       else
-        if Rails.env.production?
+        if ENV["RAILS_ENV"] == "production"
           Reporters::DebugReporter.new(io)
         else
           Reporters::DotReporter.new(io)
