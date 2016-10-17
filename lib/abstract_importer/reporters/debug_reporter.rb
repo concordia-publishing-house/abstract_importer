@@ -23,7 +23,7 @@ module AbstractImporter
 
 
 
-      def finish_setup(ms)
+      def finish_setup(importer, ms)
         super
       end
 

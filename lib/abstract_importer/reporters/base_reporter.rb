@@ -17,7 +17,7 @@ module AbstractImporter
         io.puts "\n\nFinished in #{distance_of_time(ms)}"
       end
 
-      def finish_setup(ms)
+      def finish_setup(importer, ms)
         io.puts "Setup took #{distance_of_time(ms)}\n"
       end
 

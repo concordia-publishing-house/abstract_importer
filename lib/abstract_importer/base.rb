@@ -64,7 +64,7 @@ module AbstractImporter
       ms = Benchmark.ms do
         setup
       end
-      reporter.finish_setup(ms)
+      reporter.finish_setup(self, ms)
 
       ms = Benchmark.ms do
         with_transaction do
