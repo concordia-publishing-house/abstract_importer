@@ -1,3 +1,4 @@
+require "active_support/core_ext/module/delegation"
 require "abstract_importer/import_options"
 require "abstract_importer/import_plan"
 require "abstract_importer/reporters"

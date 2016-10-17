@@ -1,7 +1,7 @@
 # .travis.yml
 language: ruby
 rvm:
-  - 2.1.2
+  - 2.3.0
 
 # https://github.com/travis-ci/travis-ci/issues/5239
 before_install:
