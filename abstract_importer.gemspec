@@ -19,13 +19,14 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "activerecord", ">= 5.0"
   spec.add_dependency "activesupport", ">= 5.0"
-  spec.add_dependency "activerecord-insert_many", ">= 0.1.1"
+  spec.add_dependency "activerecord-insert_many", ">= 0.4.0"
 
   spec.add_development_dependency "bundler", "~> 1.3"
   spec.add_development_dependency "minitest-reporters"
   spec.add_development_dependency "minitest-reporters-turn_reporter"
   spec.add_development_dependency "rake"
   spec.add_development_dependency "sqlite3"
+  spec.add_development_dependency "pg"
   spec.add_development_dependency "pry"
   spec.add_development_dependency "rr"
   spec.add_development_dependency "database_cleaner"

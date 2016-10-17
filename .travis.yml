@@ -1,14 +1,17 @@
-# .travis.yml
 language: ruby
 rvm:
-  - 2.3.0
+  - 2.3.1
 
-# https://github.com/travis-ci/travis-ci/issues/5239
-before_install:
-  - gem update bundler
-  - sudo apt-add-repository -y ppa:travis-ci/sqlite3
-  - sudo apt-get -y update
-  - sudo apt-get install sqlite3=3.7.15.1-1~travis1
+# Use Postgres 9.5
+# https://www.brandur.org/fragments/postgres-95-travis
+dist: trusty
+sudo: required
+addons:
+  postgresql: "9.5"
 
-script:
-  - bundle exec rake test
+before_install: gem update bundler
+script: bundle exec rake test
+
+# To stop Travis from running tests for a new commit,
+# add the following to your commit message: [ci skip]
+# You should add this when you edit documentation or comments, etc.

@@ -20,10 +20,13 @@ require "minitest/autorun"
 
 
 
+system "psql -c 'create database abstract_importer_test'"
+
 ActiveRecord::Base.establish_connection(
-  :adapter => "sqlite3",
-  :database => ":memory:",
-  :verbosity => "quiet")
+  adapter: "postgresql",
+  host: "localhost",
+  database: "abstract_importer_test",
+  verbosity: "quiet")
 
 load File.join(File.dirname(__FILE__), "support", "schema.rb")
 
