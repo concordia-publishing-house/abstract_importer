@@ -38,14 +38,7 @@ module AbstractImporter
       def flush
         invoke_callback(:before_batch, @batch)
 
-        begin
-          tries = (tries || 0) + 1
-          collection.scope.insert_many(@batch)
-        rescue
-          raise if tries > 1
-          invoke_callback(:rescue_batch, @batch)
-          retry
-        end
+        collection.scope.insert_many(@batch)
 
         if remap_ids?
           id_map.merge! collection.table_name,
