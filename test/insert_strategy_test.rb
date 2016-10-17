@@ -1,7 +1,7 @@
 require "test_helper"
 
 
-class ImporterTest < ActiveSupport::TestCase
+class InsertStrategyTest < ActiveSupport::TestCase
 
   setup do
     options.merge!(strategy: {students: :insert})
