@@ -221,7 +221,7 @@ module AbstractImporter
       when "debug"       then Reporters::DebugReporter.new(io)
       when "dot"         then Reporters::DotReporter.new(io)
       else
-        if Rails.env.production?
+        if ENV["RAILS_ENV"] == "production"
           Reporters::DebugReporter.new(io)
         else
           Reporters::DotReporter.new(io)
