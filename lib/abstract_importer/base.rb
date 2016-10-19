@@ -84,6 +84,21 @@ module AbstractImporter
       prepopulate_id_map!
     end
 
+    def count_collection(collection)
+      collection_name = collection.respond_to?(:name) ? collection.name : collection
+      collection_counts[collection_name]
+    end
+
+    def collection_counts
+      @collection_counts ||= Hash.new do |counts, collection_name|
+        counts[collection_name] = if self.source.respond_to?(:"#{collection_name}_count")
+          self.source.public_send(:"#{collection_name}_count")
+        else
+          self.source.public_send(collection_name).count
+        end
+      end
+    end
+
     def import_collection(collection)
       return if skip? collection
       results[collection.name] = CollectionImporter.new(self, collection).perform!

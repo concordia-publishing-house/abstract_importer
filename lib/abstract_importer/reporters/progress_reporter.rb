@@ -5,20 +5,15 @@ module AbstractImporter
     class ProgressReporter < BaseReporter
 
       def finish_setup(importer, ms)
-        super
-
-        ms = Benchmark.ms do
-          total = importer.collections.reduce(0) do |total, collection|
-            total + importer.source.public_send(collection.name).count
-          end
-          @pbar = ProgressBar.new("progress", total)
+        total = importer.collections.reduce(0) do |total, collection|
+          total + importer.count_collection(collection)
         end
-        io.puts "Counted records to import in #{distance_of_time(ms)}"
+        @pbar = ProgressBar.new("progress", total)
       end
 
       def finish_all(importer, ms)
         pbar.finish
-        super
+        io.puts "Finished in #{distance_of_time(ms)}"
       end
 
       def start_collection(collection)
