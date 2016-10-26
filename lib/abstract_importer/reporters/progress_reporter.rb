@@ -34,7 +34,7 @@ module AbstractImporter
         pbar.inc size
       end
 
-    private
+    protected
       attr_reader :pbar
 
     end
