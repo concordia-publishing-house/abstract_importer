@@ -7,18 +7,12 @@ module AbstractImporter
       @id_map = Hash.new { |hash, key| hash[key] = {} }
     end
 
-
-
-    def init(table_name, query)
+    def merge!(table_name, map)
       table_name = table_name.to_sym
-      @id_map[table_name] = {}
-      merge! table_name, query
+      map = Hash[map.pluck(:legacy_id, :id)] unless map.is_a?(Hash)
+      @id_map[table_name].merge! map
     end
-
-    def merge!(table_name, query)
-      table_name = table_name.to_sym
-      @id_map[table_name].merge! Hash[query.pluck(:legacy_id, :id)]
-    end
+    alias :init :merge!
 
     def get(table_name)
       @id_map[table_name.to_sym].dup
