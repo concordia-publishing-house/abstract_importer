@@ -195,6 +195,13 @@ module AbstractImporter
         raise "#{parent.class} does not have a collection named `#{collection}`; " <<
               "but #{self.class} plans to import records with that name"
       end
+
+      Array(self.class.dependencies).each do |collection|
+        next if parent.respond_to?(collection)
+
+        raise "#{parent.class} does not have a collection named `#{collection}`; " <<
+              "but #{self.class} declares it as a dependency"
+      end
     end
 
     def instantiate_collections!
