@@ -28,6 +28,7 @@ module AbstractImporter
     def initialize(parent, source, options={})
       @source       = source
       @parent       = parent
+      @options      = options
 
       io            = options.fetch(:io, $stderr)
       @reporter     = default_reporter(options, io)
@@ -60,7 +61,8 @@ module AbstractImporter
                 :import_plan,
                 :skip,
                 :only,
-                :collection_importers
+                :collection_importers,
+                :options
 
     def atomic?
       @atomic
