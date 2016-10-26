@@ -1,8 +1,6 @@
 module AbstractImporter
   class IdMap
 
-    class IdNotMappedError < StandardError; end
-
     def initialize
       @id_map = Hash.new { |hash, key| hash[key] = {} }
     end
@@ -42,9 +40,7 @@ module AbstractImporter
 
     def apply!(depends_on, legacy_id)
       return nil if legacy_id.blank?
-      id_map = @id_map[depends_on]
-      raise IdNotMappedError.new unless id_map.key?(legacy_id)
-      id_map[legacy_id]
+      @id_map[depends_on].fetch(legacy_id)
     end
 
     def tables

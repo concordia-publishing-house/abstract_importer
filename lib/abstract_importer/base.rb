@@ -9,6 +9,7 @@ require "abstract_importer/summary"
 
 
 module AbstractImporter
+  class IdNotMappedError < StandardError; end
   class Base
 
     class << self
@@ -175,9 +176,8 @@ module AbstractImporter
       return nil if legacy_id.nil?
       return legacy_id unless use_id_map_for?(depends_on)
       id_map.apply!(depends_on, legacy_id)
-    rescue IdMap::IdNotMappedError
-      record_no_id_in_map_error(legacy_id, plural, foreign_key, depends_on)
-      nil
+    rescue KeyError
+      raise IdNotMappedError, "#{plural}.#{foreign_key} will be nil: a #{depends_on.to_s.singularize} with the legacy id #{legacy_id} was not mapped."
     end
 
 
@@ -251,12 +251,6 @@ module AbstractImporter
     def prepopulate_id_map_for!(collection)
       id_map.init collection.table_name, collection.scope
         .where("#{collection.table_name}.legacy_id IS NOT NULL")
-    end
-
-
-
-    def record_no_id_in_map_error(legacy_id, plural, foreign_key, depends_on)
-      reporter.count_notice "#{plural}.#{foreign_key} will be nil: a #{depends_on.to_s.singularize} with the legacy id #{legacy_id} was not mapped."
     end
 
 
