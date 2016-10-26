@@ -47,5 +47,17 @@ module AbstractImporter
       id_map[legacy_id]
     end
 
+    def tables
+      @id_map.keys
+    end
+
+    def dup
+      IdMap.new.tap do |other|
+        tables.each do |table|
+          other.init table, get(table)
+        end
+      end
+    end
+
   end
 end
