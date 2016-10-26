@@ -8,7 +8,7 @@ module AbstractImporter
       def finish_all(importer, ms)
       end
 
-      def finish_setup(ms)
+      def finish_setup(importer, ms)
       end
 
       def start_collection(collection)

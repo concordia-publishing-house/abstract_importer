@@ -9,6 +9,7 @@ require "abstract_importer/summary"
 
 
 module AbstractImporter
+  class IdNotMappedError < StandardError; end
   class Base
 
     class << self
@@ -28,22 +29,51 @@ module AbstractImporter
     def initialize(parent, source, options={})
       @source       = source
       @parent       = parent
+      @options      = options
 
       io            = options.fetch(:io, $stderr)
-      @reporter     = default_reporter(io)
+      @reporter     = default_reporter(options, io)
       @dry_run      = options.fetch(:dry_run, false)
 
-      @id_map       = IdMap.new
-      @results      = {}
+      id_map        = options.fetch(:id_map, true)
       @import_plan  = self.class.import_plan.to_h
       @atomic       = options.fetch(:atomic, false)
       @strategies   = options.fetch(:strategy, {})
+      @generate_id  = options[:generate_id]
       @skip         = Array(options[:skip])
       @only         = Array(options[:only]) if options.key?(:only)
       @collections  = []
+
+      @use_id_map, @id_map = id_map.is_a?(IdMap) ? [true, id_map] : [id_map, IdMap.new]
+
+      verify_source!
+      verify_parent!
+      instantiate_collections!
+
+      @collection_importers = []
+      collections.each do |collection|
+        next if skip? collection
+        @collection_importers.push CollectionImporter.new(self, collection)
+      end
     end
 
-    attr_reader :source, :parent, :reporter, :id_map, :results
+    attr_reader :source,
+                :parent,
+                :reporter,
+                :id_map,
+                :collections,
+                :import_plan,
+                :skip,
+                :only,
+                :collection_importers,
+                :options,
+                :generate_id
+
+    def use_id_map_for?(collection)
+      collection = find_collection(collection) if collection.is_a?(Symbol)
+      return false unless collection
+      @use_id_map && collection.has_legacy_id?
+    end
 
     def atomic?
       @atomic
@@ -58,42 +88,57 @@ module AbstractImporter
 
 
     def perform!
-      reporter.start_all(self)
+      {}.tap do |results|
+        reporter.start_all(self)
 
-      ms = Benchmark.ms do
-        setup
-      end
-      reporter.finish_setup(ms)
-
-      ms = Benchmark.ms do
-        with_transaction do
-          collections.each &method(:import_collection)
+        ms = Benchmark.ms do
+          setup
         end
-      end
+        reporter.finish_setup(self, ms)
 
-      teardown
-      reporter.finish_all(self, ms)
-      results
+        ms = Benchmark.ms do
+          with_transaction do
+            collection_importers.each do |importer|
+              results[importer.name] = importer.perform!
+            end
+          end
+        end
+
+        ms = Benchmark.ms do
+          teardown
+        end
+        reporter.finish_teardown(self, ms)
+
+        reporter.finish_all(self, ms)
+      end
     end
 
     def setup
-      verify_source!
-      verify_parent!
-      instantiate_collections!
       prepopulate_id_map!
     end
 
-    def import_collection(collection)
-      return if skip? collection
-      results[collection.name] = CollectionImporter.new(self, collection).perform!
+    def count_collection(collection)
+      collection_name = collection.respond_to?(:name) ? collection.name : collection
+      collection_counts[collection_name]
+    end
+
+    def collection_counts
+      @collection_counts ||= Hash.new do |counts, collection_name|
+        counts[collection_name] = if self.source.respond_to?(:"#{collection_name}_count")
+          self.source.public_send(:"#{collection_name}_count")
+        else
+          self.source.public_send(collection_name).count
+        end
+      end
     end
 
     def teardown
     end
 
     def skip?(collection)
-      return true if skip.member?(collection.name)
-      return true if only && !only.member?(collection.name)
+      collection_name = collection.respond_to?(:name) ? collection.name : collection
+      return true if skip.member?(collection_name)
+      return true if only && !only.member?(collection_name)
       false
     end
 
@@ -131,13 +176,10 @@ module AbstractImporter
 
     def map_foreign_key(legacy_id, plural, foreign_key, depends_on)
       return nil if legacy_id.nil?
-      collection = collections.find { |collection| collection.name == depends_on } ||
-                   dependencies.find { |collection| collection.name == depends_on }
-      return legacy_id if collection && !collection.has_legacy_id?
-      id_map.apply!(legacy_id, depends_on)
-    rescue IdMap::IdNotMappedError
-      record_no_id_in_map_error(legacy_id, plural, foreign_key, depends_on)
-      nil
+      return legacy_id unless use_id_map_for?(depends_on)
+      id_map.apply!(depends_on, legacy_id)
+    rescue KeyError
+      raise IdNotMappedError, "#{plural}.#{foreign_key} will be nil: a #{depends_on.to_s.singularize} with the legacy id #{legacy_id} was not mapped."
     end
 
 
@@ -145,8 +187,6 @@ module AbstractImporter
 
 
   private
-
-    attr_reader :collections, :import_plan, :skip, :only
 
     def verify_source!
       import_plan.keys.each do |collection|
@@ -163,6 +203,13 @@ module AbstractImporter
 
         raise "#{parent.class} does not have a collection named `#{collection}`; " <<
               "but #{self.class} plans to import records with that name"
+      end
+
+      Array(self.class.dependencies).each do |collection|
+        next if parent.respond_to?(collection)
+
+        raise "#{parent.class} does not have a collection named `#{collection}`; " <<
+              "but #{self.class} declares it as a dependency"
       end
     end
 
@@ -191,18 +238,20 @@ module AbstractImporter
       end
     end
 
+    def find_collection(name)
+      collections.find { |collection| collection.name == name } ||
+      dependencies.find { |collection| collection.name == name }
+    end
+
     def prepopulate_id_map!
       (collections + dependencies).each do |collection|
-        next unless collection.has_legacy_id?
-        id_map.init collection.table_name, collection.scope
-          .where("#{collection.table_name}.legacy_id IS NOT NULL")
+        next unless use_id_map_for?(collection)
+        prepopulate_id_map_for!(collection)
       end
     end
 
-
-
-    def record_no_id_in_map_error(legacy_id, plural, foreign_key, depends_on)
-      reporter.count_notice "#{plural}.#{foreign_key} will be nil: a #{depends_on.to_s.singularize} with the legacy id #{legacy_id} was not mapped."
+    def prepopulate_id_map_for!(collection)
+      id_map.init collection.table_name, collection.scope
     end
 
 
@@ -215,8 +264,11 @@ module AbstractImporter
       end
     end
 
-    def default_reporter(io)
-      case ENV["IMPORT_REPORTER"].to_s.downcase
+    def default_reporter(options, io)
+      reporter = options.fetch(:reporter, ENV["IMPORT_REPORTER"])
+      return reporter if reporter.is_a?(AbstractImporter::Reporters::BaseReporter)
+
+      case reporter.to_s.downcase
       when "none"        then Reporters::NullReporter.new(io)
       when "performance" then Reporters::PerformanceReporter.new(io)
       when "debug"       then Reporters::DebugReporter.new(io)

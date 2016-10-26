@@ -24,9 +24,11 @@ module AbstractImporter
              :parent,
              :source,
              :reporter,
+             :use_id_map_for?,
              :remap_foreign_key?,
              :id_map,
              :map_foreign_key,
+             :generate_id,
              :to => :importer
 
 

@@ -1,24 +1,16 @@
 module AbstractImporter
   class IdMap
 
-    class IdNotMappedError < StandardError; end
-
     def initialize
       @id_map = Hash.new { |hash, key| hash[key] = {} }
     end
 
-
-
-    def init(table_name, query)
+    def merge!(table_name, map)
       table_name = table_name.to_sym
-      @id_map[table_name] = {}
-      merge! table_name, query
+      map = Hash[map.where.not(legacy_id: nil).pluck(:legacy_id, :id)] unless map.is_a?(Hash)
+      @id_map[table_name].merge! map
     end
-
-    def merge!(table_name, query)
-      table_name = table_name.to_sym
-      @id_map[table_name].merge! Hash[query.pluck(:legacy_id, :id)]
-    end
+    alias :init :merge!
 
     def get(table_name)
       @id_map[table_name.to_sym].dup
@@ -46,11 +38,21 @@ module AbstractImporter
       @id_map[table_name][legacy_id] = record_id
     end
 
-    def apply!(legacy_id, depends_on)
+    def apply!(depends_on, legacy_id)
       return nil if legacy_id.blank?
-      id_map = @id_map[depends_on]
-      raise IdNotMappedError.new unless id_map.key?(legacy_id)
-      id_map[legacy_id]
+      @id_map[depends_on].fetch(legacy_id)
+    end
+
+    def tables
+      @id_map.keys
+    end
+
+    def dup
+      IdMap.new.tap do |other|
+        tables.each do |table|
+          other.init table, get(table)
+        end
+      end
     end
 
   end

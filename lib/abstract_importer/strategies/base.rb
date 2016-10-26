@@ -7,16 +7,18 @@ module AbstractImporter
                :remap_foreign_keys!,
                :redundant_record?,
                :invoke_callback,
+               :use_id_map_for?,
                :dry_run?,
                :id_map,
                :scope,
                :reporter,
                :association_attrs,
+               :generate_id,
                to: :collection
 
       def initialize(collection, options={})
         @collection = collection
-        @remap_ids = options.fetch(:id_map, collection.has_legacy_id?)
+        @remap_ids = options.fetch(:id_map, use_id_map_for?(collection))
       end
 
       def remap_ids?
@@ -37,7 +39,10 @@ module AbstractImporter
       def prepare_attributes(hash)
         hash = invoke_callback(:before_build, hash) || hash
 
-        hash = hash.merge(legacy_id: hash.delete(:id)) if remap_ids?
+        if remap_ids?
+          hash = hash.merge(legacy_id: hash.delete(:id))
+          hash[:id] = generate_id.call if generate_id
+        end
 
         hash.merge(association_attrs)
       end

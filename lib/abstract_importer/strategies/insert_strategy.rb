@@ -27,8 +27,7 @@ module AbstractImporter
           return
         end
 
-        @batch << prepare_attributes(hash)
-        flush if @batch.length >= @batch_size
+        add_to_batch prepare_attributes(hash)
 
       rescue ::AbstractImporter::Skip
         summary.skipped += 1
@@ -38,17 +37,34 @@ module AbstractImporter
       def flush
         invoke_callback(:before_batch, @batch)
 
-        collection.scope.insert_many(@batch)
+        insert_batch(@batch)
 
-        if remap_ids?
-          id_map.merge! collection.table_name,
-            collection.scope.where(legacy_id: @batch.map { |hash| hash[:legacy_id] })
-        end
+        id_map_record_batch(@batch) if remap_ids?
 
         summary.created += @batch.length
         reporter.batch_inserted(@batch.length)
 
         @batch = []
+      end
+
+
+      def insert_batch(batch)
+        collection.scope.insert_many(batch)
+      end
+
+
+      def add_to_batch(attributes)
+        @batch << attributes
+        legacy_id, id = attributes.values_at(:legacy_id, :id)
+        id_map.merge! collection.table_name, legacy_id => id if id && legacy_id
+        flush if @batch.length >= @batch_size
+      end
+
+
+      def id_map_record_batch(batch)
+        return if generate_id
+        id_map.merge! collection.table_name,
+          collection.scope.where(legacy_id: @batch.map { |hash| hash[:legacy_id] })
       end
 
 
