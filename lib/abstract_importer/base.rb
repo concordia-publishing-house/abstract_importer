@@ -125,8 +125,9 @@ module AbstractImporter
     end
 
     def skip?(collection)
-      return true if skip.member?(collection.name)
-      return true if only && !only.member?(collection.name)
+      collection_name = collection.respond_to?(:name) ? collection.name : collection
+      return true if skip.member?(collection_name)
+      return true if only && !only.member?(collection_name)
       false
     end
 
