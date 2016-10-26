@@ -28,6 +28,7 @@ module AbstractImporter
              :remap_foreign_key?,
              :id_map,
              :map_foreign_key,
+             :generate_id,
              :to => :importer
 
 

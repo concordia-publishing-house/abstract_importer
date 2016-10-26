@@ -55,11 +55,14 @@ module AbstractImporter
 
       def add_to_batch(attributes)
         @batch << attributes
+        legacy_id, id = attributes.values_at(:legacy_id, :id)
+        id_map.merge! collection.table_name, legacy_id => id if id && legacy_id
         flush if @batch.length >= @batch_size
       end
 
 
       def id_map_record_batch(batch)
+        return if generate_id
         id_map.merge! collection.table_name,
           collection.scope.where(legacy_id: @batch.map { |hash| hash[:legacy_id] })
       end

@@ -84,4 +84,26 @@ class InsertStrategyTest < ActiveSupport::TestCase
   end
 
 
+
+  context "Given an ID generator" do
+    setup do
+      plan do |import|
+        import.students
+      end
+
+      id = 0
+      options.merge!(generate_id: -> { id += 1 })
+    end
+
+    should "insert the records with the specified IDs" do
+      import!
+      assert_equal [1, 2, 3], account.students.pluck(:id)
+    end
+
+    should "map the specified IDs to the legacy_ids" do
+      import!
+      assert_equal ({ 456 => 1, 457 => 2, 458 => 3 }), importer.id_map.get(:students)
+    end
+  end
+
 end

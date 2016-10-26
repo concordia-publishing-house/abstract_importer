@@ -39,6 +39,7 @@ module AbstractImporter
       @import_plan  = self.class.import_plan.to_h
       @atomic       = options.fetch(:atomic, false)
       @strategies   = options.fetch(:strategy, {})
+      @generate_id  = options[:generate_id]
       @skip         = Array(options[:skip])
       @only         = Array(options[:only]) if options.key?(:only)
       @collections  = []
@@ -65,7 +66,8 @@ module AbstractImporter
                 :skip,
                 :only,
                 :collection_importers,
-                :options
+                :options,
+                :generate_id
 
     def use_id_map_for?(collection)
       collection = find_collection(collection) if collection.is_a?(Symbol)

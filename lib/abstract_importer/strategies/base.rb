@@ -13,6 +13,7 @@ module AbstractImporter
                :scope,
                :reporter,
                :association_attrs,
+               :generate_id,
                to: :collection
 
       def initialize(collection, options={})
@@ -38,7 +39,10 @@ module AbstractImporter
       def prepare_attributes(hash)
         hash = invoke_callback(:before_build, hash) || hash
 
-        hash = hash.merge(legacy_id: hash.delete(:id)) if remap_ids?
+        if remap_ids?
+          hash = hash.merge(legacy_id: hash.delete(:id))
+          hash[:id] = generate_id.call if generate_id
+        end
 
         hash.merge(association_attrs)
       end
