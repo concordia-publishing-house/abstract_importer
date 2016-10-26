@@ -34,17 +34,33 @@ module AbstractImporter
       @dry_run      = options.fetch(:dry_run, false)
 
       @id_map       = IdMap.new
-      @results      = {}
       @import_plan  = self.class.import_plan.to_h
       @atomic       = options.fetch(:atomic, false)
       @strategies   = options.fetch(:strategy, {})
       @skip         = Array(options[:skip])
       @only         = Array(options[:only]) if options.key?(:only)
       @collections  = []
+
+      verify_source!
+      verify_parent!
+      instantiate_collections!
+
+      @collection_importers = []
+      collections.each do |collection|
+        next if skip? collection
+        @collection_importers.push CollectionImporter.new(self, collection)
+      end
     end
 
-    attr_reader :source, :parent, :reporter, :id_map, :results,
-                :collections, :import_plan, :skip, :only
+    attr_reader :source,
+                :parent,
+                :reporter,
+                :id_map,
+                :collections,
+                :import_plan,
+                :skip,
+                :only,
+                :collection_importers
 
     def atomic?
       @atomic
@@ -59,28 +75,32 @@ module AbstractImporter
 
 
     def perform!
-      reporter.start_all(self)
+      {}.tap do |results|
+        reporter.start_all(self)
 
-      ms = Benchmark.ms do
-        setup
-      end
-      reporter.finish_setup(self, ms)
-
-      ms = Benchmark.ms do
-        with_transaction do
-          collections.each &method(:import_collection)
+        ms = Benchmark.ms do
+          setup
         end
-      end
+        reporter.finish_setup(self, ms)
 
-      teardown
-      reporter.finish_all(self, ms)
-      results
+        ms = Benchmark.ms do
+          with_transaction do
+            collection_importers.each do |importer|
+              results[importer.name] = importer.perform!
+            end
+          end
+        end
+
+        ms = Benchmark.ms do
+          teardown
+        end
+        reporter.finish_teardown(self, ms)
+
+        reporter.finish_all(self, ms)
+      end
     end
 
     def setup
-      verify_source!
-      verify_parent!
-      instantiate_collections!
       prepopulate_id_map!
     end
 
@@ -97,11 +117,6 @@ module AbstractImporter
           self.source.public_send(collection_name).count
         end
       end
-    end
-
-    def import_collection(collection)
-      return if skip? collection
-      results[collection.name] = CollectionImporter.new(self, collection).perform!
     end
 
     def teardown

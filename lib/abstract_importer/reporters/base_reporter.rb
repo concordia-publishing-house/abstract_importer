@@ -21,6 +21,9 @@ module AbstractImporter
         io.puts "Setup took #{distance_of_time(ms)}\n"
       end
 
+      def finish_teardown(importer, ms)
+      end
+
       def start_collection(collection)
         io.puts "\n#{("="*80)}\nImporting #{collection.name}\n#{("="*80)}\n"
       end
