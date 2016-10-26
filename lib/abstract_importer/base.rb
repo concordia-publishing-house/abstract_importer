@@ -252,7 +252,6 @@ module AbstractImporter
 
     def prepopulate_id_map_for!(collection)
       id_map.init collection.table_name, collection.scope
-        .where("#{collection.table_name}.legacy_id IS NOT NULL")
     end
 
 

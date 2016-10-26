@@ -7,7 +7,7 @@ module AbstractImporter
 
     def merge!(table_name, map)
       table_name = table_name.to_sym
-      map = Hash[map.pluck(:legacy_id, :id)] unless map.is_a?(Hash)
+      map = Hash[map.where.not(legacy_id: nil).pluck(:legacy_id, :id)] unless map.is_a?(Hash)
       @id_map[table_name].merge! map
     end
     alias :init :merge!
