@@ -46,7 +46,7 @@ module AbstractImporter
       @id_map[table_name][legacy_id] = record_id
     end
 
-    def apply!(legacy_id, depends_on)
+    def apply!(depends_on, legacy_id)
       return nil if legacy_id.blank?
       id_map = @id_map[depends_on]
       raise IdNotMappedError.new unless id_map.key?(legacy_id)

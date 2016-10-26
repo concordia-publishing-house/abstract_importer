@@ -7,6 +7,7 @@ module AbstractImporter
                :remap_foreign_keys!,
                :redundant_record?,
                :invoke_callback,
+               :use_id_map_for?,
                :dry_run?,
                :id_map,
                :scope,
@@ -16,7 +17,7 @@ module AbstractImporter
 
       def initialize(collection, options={})
         @collection = collection
-        @remap_ids = options.fetch(:id_map, collection.has_legacy_id?)
+        @remap_ids = options.fetch(:id_map, use_id_map_for?(collection))
       end
 
       def remap_ids?

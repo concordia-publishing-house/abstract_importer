@@ -34,13 +34,15 @@ module AbstractImporter
       @reporter     = default_reporter(options, io)
       @dry_run      = options.fetch(:dry_run, false)
 
-      @id_map       = IdMap.new
+      id_map        = options.fetch(:id_map, true)
       @import_plan  = self.class.import_plan.to_h
       @atomic       = options.fetch(:atomic, false)
       @strategies   = options.fetch(:strategy, {})
       @skip         = Array(options[:skip])
       @only         = Array(options[:only]) if options.key?(:only)
       @collections  = []
+
+      @use_id_map, @id_map = id_map.is_a?(IdMap) ? [true, id_map] : [id_map, IdMap.new]
 
       verify_source!
       verify_parent!
@@ -63,6 +65,12 @@ module AbstractImporter
                 :only,
                 :collection_importers,
                 :options
+
+    def use_id_map_for?(collection)
+      collection = find_collection(collection) if collection.is_a?(Symbol)
+      return false unless collection
+      @use_id_map && collection.has_legacy_id?
+    end
 
     def atomic?
       @atomic
@@ -165,10 +173,8 @@ module AbstractImporter
 
     def map_foreign_key(legacy_id, plural, foreign_key, depends_on)
       return nil if legacy_id.nil?
-      collection = collections.find { |collection| collection.name == depends_on } ||
-                   dependencies.find { |collection| collection.name == depends_on }
-      return legacy_id if collection && !collection.has_legacy_id?
-      id_map.apply!(legacy_id, depends_on)
+      return legacy_id unless use_id_map_for?(depends_on)
+      id_map.apply!(depends_on, legacy_id)
     rescue IdMap::IdNotMappedError
       record_no_id_in_map_error(legacy_id, plural, foreign_key, depends_on)
       nil
@@ -230,12 +236,21 @@ module AbstractImporter
       end
     end
 
+    def find_collection(name)
+      collections.find { |collection| collection.name == name } ||
+      dependencies.find { |collection| collection.name == name }
+    end
+
     def prepopulate_id_map!
       (collections + dependencies).each do |collection|
-        next unless collection.has_legacy_id?
-        id_map.init collection.table_name, collection.scope
-          .where("#{collection.table_name}.legacy_id IS NOT NULL")
+        next unless use_id_map_for?(collection)
+        prepopulate_id_map_for!(collection)
       end
+    end
+
+    def prepopulate_id_map_for!(collection)
+      id_map.init collection.table_name, collection.scope
+        .where("#{collection.table_name}.legacy_id IS NOT NULL")
     end
 
 
