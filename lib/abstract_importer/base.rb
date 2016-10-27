@@ -21,7 +21,11 @@ module AbstractImporter
         @dependencies = dependencies
       end
 
-      attr_reader :import_plan, :dependencies
+      def dependencies
+        @dependencies ||= []
+      end
+
+      attr_reader :import_plan
     end
 
 
@@ -185,8 +189,20 @@ module AbstractImporter
 
 
 
+  protected
+
+    def scope_for(collection_name)
+      parent.public_send(collection_name)
+    end
 
   private
+
+    def has_scope_for?(collection_name)
+      scope_for(collection_name)
+      true
+    rescue NoMethodError
+      false
+    end
 
     def verify_source!
       import_plan.keys.each do |collection|
@@ -199,14 +215,14 @@ module AbstractImporter
 
     def verify_parent!
       import_plan.keys.each do |collection|
-        next if parent.respond_to?(collection)
+        next if has_scope_for?(collection)
 
         raise "#{parent.class} does not have a collection named `#{collection}`; " <<
               "but #{self.class} plans to import records with that name"
       end
 
-      Array(self.class.dependencies).each do |collection|
-        next if parent.respond_to?(collection)
+      self.class.dependencies.each do |collection|
+        next if has_scope_for?(collection)
 
         raise "#{parent.class} does not have a collection named `#{collection}`; " <<
               "but #{self.class} declares it as a dependency"
@@ -215,26 +231,16 @@ module AbstractImporter
 
     def instantiate_collections!
       @collections = import_plan.map do |name, block|
-        reflection = parent.class.reflect_on_association(name)
-        model = reflection.klass
-        table_name = model.table_name
-        scope = parent.public_send(name)
-
         options = ImportOptions.new
         instance_exec(options, &block) if block
 
-        Collection.new(name, model, table_name, scope, options)
+        Collection.new(name, scope_for(name), options)
       end
     end
 
     def dependencies
-      @dependencies ||= Array(self.class.dependencies).map do |name|
-        reflection = parent.class.reflect_on_association(name)
-        model = reflection.klass
-        table_name = model.table_name
-        scope = parent.public_send(name)
-
-        Collection.new(name, model, table_name, scope, nil)
+      @dependencies ||= self.class.dependencies.map do |name|
+        Collection.new(name, scope_for(name))
       end
     end
 
