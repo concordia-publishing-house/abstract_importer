@@ -9,6 +9,7 @@ module AbstractImporter
         super
         @batch = []
         @batch_size = options.fetch(:batch_size, 250)
+        @insert_options = options.slice(:on_conflict)
       end
 
 
@@ -49,7 +50,7 @@ module AbstractImporter
 
 
       def insert_batch(batch)
-        collection.scope.insert_many(batch)
+        collection.scope.insert_many(batch, @insert_options)
       end
 
 

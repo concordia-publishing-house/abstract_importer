@@ -17,7 +17,7 @@ class InsertStrategyTest < ActiveSupport::TestCase
     end
 
     should "import the records in batches" do
-      mock.proxy(Student).insert_many(satisfy { |arg| arg.length == 3 })
+      mock.proxy(Student).insert_many(satisfy { |arg| arg.length == 3 }, {})
       import!
       assert_equal [456, 457, 458], account.students.pluck(:legacy_id)
     end
