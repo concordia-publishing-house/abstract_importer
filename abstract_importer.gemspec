@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Bob Lail"]
   spec.email         = ["bob.lail@cph.org"]
   spec.summary       = %q{Provides services for the mass-import of complex relational data}
-  spec.homepage      = "https://github.com/concordia-publishing-house/abstract_importer"
+  spec.homepage      = "https://github.com/cph/abstract_importer"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
