@@ -7,7 +7,7 @@ module AbstractImporter
 
       def initialize(collection, options={})
         super
-        @insert_options.merge!(on_conflict: { column: remap_ids? ? (association_attrs.keys + [:legacy_id]) : :id, do: :update })
+        @insert_options.reverse_merge!(on_conflict: { column: remap_ids? ? (association_attrs.keys + [:legacy_id]) : :id, do: :update })
       end
 
       # We won't skip any records for already being imported
