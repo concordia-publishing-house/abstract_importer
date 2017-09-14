@@ -95,10 +95,10 @@ module AbstractImporter
       {}.tap do |results|
         reporter.start_all(self)
 
-        ms = Benchmark.ms do
+        setup_ms = Benchmark.ms do
           setup
         end
-        reporter.finish_setup(self, ms)
+        reporter.finish_setup(self, setup_ms)
 
         ms = Benchmark.ms do
           with_transaction do
@@ -108,12 +108,12 @@ module AbstractImporter
           end
         end
 
-        ms = Benchmark.ms do
+        teardown_ms = Benchmark.ms do
           teardown
         end
-        reporter.finish_teardown(self, ms)
+        reporter.finish_teardown(self, teardown_ms)
 
-        reporter.finish_all(self, ms)
+        reporter.finish_all(self, setup_ms + ms + teardown_ms)
       end
     end
 
