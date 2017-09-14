@@ -128,10 +128,10 @@ module AbstractImporter
 
     def collection_counts
       @collection_counts ||= Hash.new do |counts, collection_name|
-        counts[collection_name] = if self.source.respond_to?(:"#{collection_name}_count")
-          self.source.public_send(:"#{collection_name}_count")
+        counts[collection_name] = if source.respond_to?(:"#{collection_name}_count")
+          source.public_send(:"#{collection_name}_count")
         else
-          self.source.public_send(collection_name).count
+          source.public_send(collection_name).count
         end
       end
     end
