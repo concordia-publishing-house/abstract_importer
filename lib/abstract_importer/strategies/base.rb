@@ -41,7 +41,9 @@ module AbstractImporter
 
         if remap_ids?
           hash = hash.merge(legacy_id: hash.delete(:id))
-          hash[:id] = generate_id.call if generate_id
+          if generate_id
+            hash[:id] = generate_id.arity.zero? ? generate_id.call : generate_id.call(hash)
+          end
         end
 
         hash.merge(association_attrs)
