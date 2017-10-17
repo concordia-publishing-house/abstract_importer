@@ -1,4 +1,6 @@
 require "abstract_importer/strategies"
+require "abstract_importer/mapping"
+require "abstract_importer/polymorphic_mapping"
 
 module AbstractImporter
   class CollectionImporter
@@ -27,7 +29,6 @@ module AbstractImporter
              :use_id_map_for?,
              :remap_foreign_key?,
              :id_map,
-             :map_foreign_key,
              :generate_id,
              :to => :importer
 
@@ -72,40 +73,16 @@ module AbstractImporter
         next unless remap_foreign_key?(name, foreign_key)
 
         if association.options[:polymorphic]
-          mappings << prepare_polymorphic_mapping!(association)
+          mappings << AbstractImporter::PolymorphicMapping.new(self, association)
         else
-          mappings << prepare_mapping!(association)
+          mappings << AbstractImporter::Mapping.new(self, association)
         end
       end
       mappings
     end
 
-    def prepare_mapping!(association)
-      depends_on = association.table_name.to_sym
-      foreign_key = association.foreign_key.to_sym
-
-      Proc.new do |attrs|
-        if attrs.key?(foreign_key)
-          attrs[foreign_key] = map_foreign_key(attrs[foreign_key], name, foreign_key, depends_on)
-        else
-          reporter.count_notice "#{name}.#{foreign_key} will not be mapped because it is not used"
-        end
-      end
-    end
-
-    def prepare_polymorphic_mapping!(association)
-      foreign_key = association.foreign_key.to_sym
-      foreign_type = association.foreign_key.gsub(/_id$/, "_type").to_sym
-
-      Proc.new do |attrs|
-        if attrs.key?(foreign_key) && attrs.key?(foreign_type)
-          foreign_model = attrs[foreign_type]
-          depends_on = foreign_model.constantize.table_name.to_sym if foreign_model
-          attrs[foreign_key] = depends_on && map_foreign_key(attrs[foreign_key], name, foreign_key, depends_on)
-        else
-          reporter.count_notice "#{name}.#{foreign_key} will not be mapped because it is not used"
-        end
-      end
+    def map_foreign_key(legacy_id, foreign_key, depends_on)
+      importer.map_foreign_key(legacy_id, name, foreign_key, depends_on)
     end
 
 
@@ -119,8 +96,12 @@ module AbstractImporter
 
 
     def remap_foreign_keys!(hash)
-      @mappings.each do |proc|
-        proc.call(hash)
+      @mappings.each_with_index do |mapping, i|
+        if mapping.applicable?(hash)
+          mapping.apply!(hash)
+        else
+          reporter.count_notice "#{mapping} will not be mapped because it is not used"
+        end
       end
     end
 
