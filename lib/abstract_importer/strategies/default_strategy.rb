@@ -10,6 +10,7 @@ module AbstractImporter
 
         if already_imported?(hash)
           summary.already_imported += 1
+          reporter.record_skipped hash
           return
         end
 
@@ -17,6 +18,7 @@ module AbstractImporter
 
         if redundant_record?(hash)
           summary.redundant += 1
+          reporter.record_skipped hash
           return
         end
 
@@ -27,6 +29,7 @@ module AbstractImporter
         end
       rescue ::AbstractImporter::Skip
         summary.skipped += 1
+        reporter.record_skipped hash
       end
 
 

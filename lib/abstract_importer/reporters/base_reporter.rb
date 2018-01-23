@@ -38,6 +38,9 @@ module AbstractImporter
       def record_failed(record, hash)
       end
 
+      def record_skipped(hash)
+      end
+
       def batch_inserted(size)
       end
 

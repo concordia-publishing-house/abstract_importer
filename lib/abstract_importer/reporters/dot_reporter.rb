@@ -13,6 +13,11 @@ module AbstractImporter
         super
       end
 
+      def record_skipped(hash)
+        io.print "_"
+        super
+      end
+
       def batch_inserted(size)
         io.print "." * size
         super
