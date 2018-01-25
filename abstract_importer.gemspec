@@ -27,7 +27,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "minitest-reporters-turn_reporter"
   spec.add_development_dependency "rake"
   spec.add_development_dependency "sqlite3"
-  spec.add_development_dependency "pg"
+  spec.add_development_dependency "pg", "~> 0.18"
   spec.add_development_dependency "pry"
   spec.add_development_dependency "rr"
   spec.add_development_dependency "database_cleaner"

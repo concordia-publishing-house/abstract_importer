@@ -30,6 +30,10 @@ module AbstractImporter
         pbar.inc
       end
 
+      def record_skipped(hash)
+        pbar.inc
+      end
+
       def batch_inserted(size)
         pbar.inc size
       end
