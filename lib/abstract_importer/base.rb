@@ -35,7 +35,7 @@ module AbstractImporter
         klass = self
         until klass.instance_variable_defined?(ivar)
           klass = klass.superclass
-          break if klass == AbstractImporter::Base
+          return if klass == AbstractImporter::Base
         end
         klass.instance_variable_get(ivar)
       end
