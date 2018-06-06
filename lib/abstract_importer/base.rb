@@ -22,17 +22,31 @@ module AbstractImporter
       end
 
       def dependencies
-        @dependencies ||= []
+        read_inheritable_instance_variable(:@dependencies) || []
       end
 
-      attr_reader :import_plan
+      def import_plan
+        read_inheritable_instance_variable(:@import_plan)
+      end
+
+    private
+
+      def read_inheritable_instance_variable(ivar)
+        klass = self
+        until klass.instance_variable_defined?(ivar)
+          klass = klass.superclass
+          break if klass == AbstractImporter::Base
+        end
+        klass.instance_variable_get(ivar)
+      end
+
     end
 
 
 
     def initialize(parent, source, options={})
-      @source       = source
       @parent       = parent
+      @source       = source
       @options      = options
 
       io            = options.fetch(:io, $stderr)
