@@ -206,7 +206,7 @@ module AbstractImporter
   protected
 
     def scope_for(collection_name)
-      parent.public_send(collection_name)
+      parent.public_send(collection_name).unscope(:order)
     end
 
   private
