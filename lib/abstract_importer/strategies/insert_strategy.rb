@@ -10,6 +10,7 @@ module AbstractImporter
         @batch = []
         @batch_size = options.fetch(:batch_size, 250)
         @insert_options = options.slice(:on_conflict)
+        @insert_options.merge!(returning: [:legacy_id, :id]) if remap_ids?
       end
 
 
@@ -43,8 +44,6 @@ module AbstractImporter
 
         insert_batch(@batch)
 
-        id_map_record_batch(@batch) if remap_ids?
-
         summary.created += @batch.length
         reporter.batch_inserted(@batch.length)
 
@@ -53,7 +52,8 @@ module AbstractImporter
 
 
       def insert_batch(batch)
-        collection.scope.insert_many(batch, @insert_options)
+        result = collection.scope.insert_many(batch, @insert_options)
+        add_batch_to_id_map(result) if remap_ids?
       end
 
 
@@ -65,10 +65,11 @@ module AbstractImporter
       end
 
 
-      def id_map_record_batch(batch)
-        return if generate_id
-        id_map.merge! collection.table_name,
-          collection.scope.where(legacy_id: @batch.map { |hash| hash[:legacy_id] })
+      def add_batch_to_id_map(result)
+        map = result.each_with_object({}) do |attrs, map|
+          map[attrs.fetch("legacy_id")] = attrs.fetch("id")
+        end
+        id_map.merge! collection.table_name, map
       end
 
 
