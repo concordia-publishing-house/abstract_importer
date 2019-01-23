@@ -22,7 +22,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "activerecord-insert_many", ">= 0.4.3"
   spec.add_dependency "progressbar"
 
-  spec.add_development_dependency "bundler", "~> 1.3"
+  spec.add_development_dependency "bundler"
   spec.add_development_dependency "minitest-reporters"
   spec.add_development_dependency "minitest-reporters-turn_reporter"
   spec.add_development_dependency "rake"
