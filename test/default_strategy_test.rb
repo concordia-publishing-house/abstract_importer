@@ -147,7 +147,7 @@ class DefaultStrategyTest < ActiveSupport::TestCase
       import!
       assert_equal 2, account.students.map(&:pet).compact.count, "Expected two students to still be linked to their pets upon import"
       assert_kind_of Owl, account.students.find_by_name("Harry Potter").pet, "Expected Harry's pet to be an Owl"
-      assert_kind_of Cat, account.students.find_by_name("Hermione Granger").pet, "Expected Harry's pet to be a Cat"
+      assert_kind_of Cat, account.students.find_by_name("Hermione Granger").pet, "Expected Hermione's pet to be a Cat"
     end
   end
 
