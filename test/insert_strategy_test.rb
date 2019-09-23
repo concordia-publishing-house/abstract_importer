@@ -17,7 +17,7 @@ class InsertStrategyTest < ActiveSupport::TestCase
     end
 
     should "import the records in batches" do
-      mock.proxy(Student).insert_many(satisfy { |arg| arg.length == 3 }, anything)
+      mock.proxy(Student).insert_all(satisfy { |arg| arg.length == 3 }, anything)
       import!
       assert_equal [456, 457, 458], account.students.pluck(:legacy_id)
     end
@@ -51,6 +51,22 @@ class InsertStrategyTest < ActiveSupport::TestCase
       harry = account.students.create!(name: "Harry Potter", legacy_id: 456)
       import!
       assert_equal ["James Potter", "Lily Potter"], harry.parents.pluck(:name)
+    end
+  end
+
+  context "With an empty data source" do
+    setup do
+      plan do |import|
+        import.students
+      end
+      @data_source = OpenStruct.new
+      @data_source.students = []
+    end
+
+    should "still be able to import" do
+      assert_nothing_raised do
+        import!
+      end
     end
   end
 

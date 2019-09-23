@@ -1,5 +1,4 @@
 require "abstract_importer/strategies/base"
-require "activerecord/insert_many"
 
 module AbstractImporter
   module Strategies
@@ -9,7 +8,8 @@ module AbstractImporter
         super
         @batch = []
         @batch_size = options.fetch(:batch_size, 250)
-        @insert_options = options.slice(:on_conflict)
+        @bulk_operation = options[:on_duplicate] == :update ? :upsert_all : :insert_all
+        @insert_options = options.slice(:unique_by)
         @insert_options.merge!(returning: [:legacy_id, :id]) if remap_ids?
       end
 
@@ -52,7 +52,9 @@ module AbstractImporter
 
 
       def insert_batch(batch)
-        result = collection.scope.insert_many(batch, @insert_options)
+        return if batch.empty?
+
+        result = collection.scope.public_send(@bulk_operation, batch, @insert_options)
         add_batch_to_id_map(result) if remap_ids?
       end
 
