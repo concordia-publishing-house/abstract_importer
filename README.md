@@ -187,6 +187,14 @@ The following alternate strategies are built in:
 
 Replaces records that have already been imported rather than skipping them.
 
+##### insert
+
+Bulk inserts records rather than creating them one-by-one as ActiveRecord objects, skipping those that have already been imported.
+
+##### upsert
+
+Bulk inserts records, but updates records that have already been imported rather than skipping them.
+
 
 
 ## Contributing
