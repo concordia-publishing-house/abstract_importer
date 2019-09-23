@@ -1,6 +1,6 @@
 language: ruby
 rvm:
-  - 2.3.1
+  - 2.6.3
 
 # Use Postgres 9.5
 # https://www.brandur.org/fragments/postgres-95-travis
