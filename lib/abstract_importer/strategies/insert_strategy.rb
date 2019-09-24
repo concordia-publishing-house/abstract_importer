@@ -68,10 +68,23 @@ module AbstractImporter
 
 
       def add_batch_to_id_map(result)
-        map = result.each_with_object({}) do |attrs, map|
+        map = cast_result(result, collection.table_name).each_with_object({}) do |attrs, map|
           map[attrs.fetch("legacy_id")] = attrs.fetch("id")
         end
         id_map.merge! collection.table_name, map
+      end
+
+
+      def cast_result(result, table_name)
+        types_by_column = result.columns.each_with_object({}) do |column_name, types|
+          types[column_name] = collection.scope.connection.lookup_cast_type_from_column(collection.scope.columns.find { |column| column.name == column_name })
+        end
+
+        result.to_a.map { |row|
+          Hash[row.map { |column_name, value|
+            [ column_name, types_by_column[column_name].deserialize(value) ]
+          }]
+        }
       end
 
 
