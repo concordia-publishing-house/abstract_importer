@@ -187,6 +187,23 @@ The following alternate strategies are built in:
 
 Replaces records that have already been imported rather than skipping them.
 
+##### insert
+
+Bulk inserts records rather than creating them one-by-one as ActiveRecord objects, skipping those that have already been imported.
+
+##### upsert
+
+Bulk inserts records, but updates records that have already been imported rather than skipping them.
+
+
+
+### Important Note on Upgrading from 1.5.x to 1.6.0
+
+With the jump to 1.6.0, `abstract_importer` has dropped reliance upon the `activerecord-insert_many` gem in favor of taking advantage of Rails 6's built-in `insert_all` and `upsert_all` for the insert and upsert strategies. With the move from the gem to relying on Rails, the syntax to specify what constitutes a conflict/duplicate record has been updated to align more closely with that of Rails. In particular:
+
+* Instead of specifying an `on_conflict: { do: :update }` clause, you should specify `on_duplicate: :update` to opt-in to upsert behavior.
+* Rather than listing columns in `on_conflict: { columns: %i{legacy_id id} }`, you should use `unique_by: %i{legacy_id id}` to specify the index or columns by which a duplicate or conflict is defined. The option follows the behavior of Rails' `upsert_all`, so refer to the Rails 6 documentation for more information.
+
 
 
 ## Contributing

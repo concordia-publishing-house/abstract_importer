@@ -17,7 +17,7 @@ class UpsertStrategyTest < ActiveSupport::TestCase
     end
 
     should "import the records in batches" do
-      mock.proxy(Student).insert_many(satisfy { |arg| arg.length == 3 }, anything)
+      mock.proxy(Student).upsert_all(satisfy { |arg| arg.length == 3 }, anything)
       import!
       assert_equal [456, 457, 458], account.students.pluck(:legacy_id)
     end
