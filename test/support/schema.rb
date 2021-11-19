@@ -72,4 +72,11 @@ ActiveRecord::Schema.define(:version => 1) do
     t.index    "legacy_id", :unique => true
   end
 
+  create_table "perils", :force => true do |t|
+    t.string    "name"
+    t.integer   "location_id"
+    t.integer   "legacy_id"
+    t.index     "legacy_id", :unique => true
+  end
+
 end

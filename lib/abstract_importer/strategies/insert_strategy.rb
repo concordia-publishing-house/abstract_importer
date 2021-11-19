@@ -54,7 +54,11 @@ module AbstractImporter
       def insert_batch(batch)
         return if batch.empty?
 
-        result = collection.scope.public_send(@bulk_operation, batch, @insert_options)
+        scope = collection.scope
+        if scope.respond_to?(:proxy_association) && scope.proxy_association.reflection.through_reflection?
+          scope = scope.klass
+        end
+        result = scope.public_send(@bulk_operation, batch, @insert_options)
         add_batch_to_id_map(result) if remap_ids?
       end
 

@@ -58,5 +58,11 @@ class MockDataSource
     end
   end
 
+  def perils
+    Enumerator.new do |e|
+      e.yield id: 801, name: "Dementors", location_id: 6
+    end
+  end
+
 
 end

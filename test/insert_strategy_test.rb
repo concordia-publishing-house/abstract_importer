@@ -4,7 +4,7 @@ require "test_helper"
 class InsertStrategyTest < ActiveSupport::TestCase
 
   setup do
-    options.merge!(strategy: {students: :insert})
+    options.merge!(strategy: {students: :insert, perils: :insert})
   end
 
 
@@ -96,6 +96,20 @@ class InsertStrategyTest < ActiveSupport::TestCase
       pet = @account
       import!
       assert_equal [["Owl", pet.id]], Ability.pluck(:pet_type, :pet_id)
+    end
+  end
+
+  context "When importing a has_many through: relationship" do
+    setup do
+      plan do |import|
+        import.locations
+        import.perils
+      end
+    end
+
+    should "handle has_many, through: relations" do
+      import!
+      assert_equal 1, account.perils.count
     end
   end
 
