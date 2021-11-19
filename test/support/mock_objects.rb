@@ -17,6 +17,7 @@ class Parent < ActiveRecord::Base
 end
 
 class Location < ActiveRecord::Base
+  has_many :perils
   validates :slug, format: {with: /\A[a-z0-9\-]+\z/}
 end
 
@@ -37,6 +38,8 @@ class Account < ActiveRecord::Base
   has_many :locations
   has_many :cats
   has_many :owls
+
+  has_many :perils, through: :locations
 end
 
 class Cat < ActiveRecord::Base
@@ -51,4 +54,8 @@ end
 
 class Ability < ActiveRecord::Base
   belongs_to :pet, inverse_of: :abilities, polymorphic: true
+end
+
+class Peril < ActiveRecord::Base
+  belongs_to :location
 end
