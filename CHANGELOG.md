@@ -1,3 +1,6 @@
+## v1.8.0 (2021 Dec 10)
+* Added `prepare_scope` as another callback that can be used when importing a collection
+
 ## v1.7.0 (2021 Nov 19)
 * Updated to handle `insert_all` and `upsert_all` to `has_many through:` relations in Rails 6.1+
 
