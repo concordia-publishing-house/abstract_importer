@@ -58,6 +58,9 @@ module AbstractImporter
         if scope.respond_to?(:proxy_association) && scope.proxy_association.reflection.through_reflection?
           scope = scope.klass
         end
+
+        scope = invoke_callback(:prepare_scope, scope) || scope
+
         result = scope.public_send(@bulk_operation, batch, @insert_options)
         add_batch_to_id_map(result) if remap_ids?
       end
