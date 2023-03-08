@@ -61,7 +61,7 @@ module AbstractImporter
 
         scope = invoke_callback(:prepare_scope, scope) || scope
 
-        result = scope.public_send(@bulk_operation, batch, @insert_options)
+        result = scope.public_send(@bulk_operation, batch, **@insert_options)
         add_batch_to_id_map(result) if remap_ids?
       end
 
