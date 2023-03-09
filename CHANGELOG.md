@@ -1,3 +1,6 @@
+## v1.9.0 (2023 Mar 8)
+* Updated to support Ruby version 3.0+
+
 ## v1.8.0 (2021 Dec 10)
 * Added `prepare_scope` as another callback that can be used when importing a collection
 
