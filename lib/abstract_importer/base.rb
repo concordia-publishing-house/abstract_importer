@@ -29,7 +29,7 @@ module AbstractImporter
       @parent       = parent
 
       io            = options.fetch(:io, $stderr)
-      @reporter     = default_reporter(io)
+      @reporter     = default_reporter(options, io)
       @dry_run      = options.fetch(:dry_run, false)
 
       @id_map       = IdMap.new
@@ -202,14 +202,17 @@ module AbstractImporter
       end
     end
 
-    def default_reporter(io)
-      case ENV["IMPORT_REPORTER"].to_s.downcase
+    def default_reporter(options, io)
+      reporter = options.fetch(:reporter, ENV["IMPORT_REPORTER"])
+      return reporter if reporter.is_a?(AbstractImporter::Reporters::BaseReporter)
+
+      case reporter.to_s.downcase
       when "none"        then Reporters::NullReporter.new(io)
       when "performance" then Reporters::PerformanceReporter.new(io)
       when "debug"       then Reporters::DebugReporter.new(io)
       when "dot"         then Reporters::DotReporter.new(io)
       else
-        if Rails.env.production?
+        if ENV["RAILS_ENV"] == "production"
           Reporters::DebugReporter.new(io)
         else
           Reporters::DotReporter.new(io)
